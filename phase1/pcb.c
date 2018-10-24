@@ -12,9 +12,6 @@
 
 HIDDEN pcb_PTR pcbFree_h;
 
-state_PTR mkEmptyState() {
-	return NULL;
-}
 
 void freePcb (pcb_PTR p){
 	insertProcQ(&pcbFree_h, p);
@@ -22,13 +19,21 @@ void freePcb (pcb_PTR p){
 
 pcb_PTR allocPcb (){
 	pcb_PTR tmp = removeProcQ(&pcbFree_h);
+
+	/*if (tmp != NULL) {
+		tmp->p_next = NULL;  /* initialize fields */
+		/*tmp->p_prev = NULL;
+		tmp->p_prnt = NULL;
+		tmp->p_child = NULL;
+		tmp->p_sib = NULL;
+		tmp->p_semAdd = NULL; 
+	}*/
 	
 	tmp->p_next = NULL;  /* initialize fields */
 	tmp->p_prev = NULL;
 	tmp->p_prnt = NULL;
 	tmp->p_child = NULL;
 	tmp->p_sib = NULL;
-	tmp->p_s = (*(mkEmptyState()));   /* wtf */
 	tmp->p_semAdd = NULL;  
 
 	if(tmp != NULL) return tmp;
@@ -58,50 +63,54 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 	if (emptyProcQ(*tp)) { /* empty q */
 		*tp = p;
 		p->p_next = p;
+		p->p_prev = p;
 		return;
 	}
 	/* non-empty q */
-	p->p_next = (*tp)->p_next;
-	(*tp)->p_next = p;
-	*tp = p;
+	else {
+		p->p_next = (*tp)->p_next;
+		(*tp)->p_next = p;
+		(*tp)->p_next->p_prev = p;
+	}
+	/* set tail pointer */
+	(*tp) = p;
 }
 
 pcb_PTR removeProcQ (pcb_PTR *tp){
 	return outProcQ(tp, *tp);
 }
 
+/* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is first one, 3) it's one of more than one and isn't the first, 4) or it's not there */
 pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
-	pcb_PTR tmp;
-	pcb_PTR tmp2;	
-	tmp = *tp;
-	if (tmp == p) { /* first pcb is p */
-		(*tp)->p_next = tmp->p_next;
-		
-		tmp->p_next = NULL;
-		
-		return tmp;
+	pcb_PTR firstPcb = *tp;
+	if (firstPcb == p) { /* first pcb is p */
+		if (p->p_next == p) { /* case 1: p is only pcb on the procQ tp */
+			(*tp) = NULL; /* set the tp to null to indicate an empty procQ */
+			return p;
+		}
+		/* condition 2 */
+		p->p_prev->p_next = p->p_next; /*adjust next pointer for new tail of procQ */
+		p->p_next->p_prev = p->p_prev; /* adjust prev pointer for head of procQ */
+		*tp = p->p_prev; /* adjust tp for procQ */
 	}
-
-	pcb_PTR current = tmp->p_next;
-	while (current != tmp) {
+	/* condition 3 */
+	pcb_PTR current = firstPcb->p_next; /* current is now head pcb of procQ */
+	while (current != firstPcb) { /*while current != tail pcb, i.e. the first one we checked */
 		if (current == p) {  /* find right pcb then... */
-			tmp = (*tp)->p_next;
-			(*tp)->p_next = tmp->p_next;
-			tmp->p_next = NULL;
-			return tmp;
+			p->p_prev->p_next = p->p_next; /* redo next and prev pointers for nodes around p */
+			p->p_next->p_prev = p->p_prev;
+			return p;
 		}		
 		current = current->p_next;
 	}
-
-	return NULL; /* pcb not found */		
+	/* case 3: target pcb not found in procQ */
+	return NULL;		
 }
 
 pcb_PTR headProcQ (pcb_PTR tp){
 	if (emptyProcQ(tp)) return NULL;
 	return (tp->p_next);
 }
-
-
 
 int emptyChild (pcb_PTR p){
 	return (p->p_child == NULL);
