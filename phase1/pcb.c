@@ -142,9 +142,30 @@ pcb_PTR removeChild (pcb_PTR p){
 	return outChild(p);
 }
 
+/* five conditions to account for: 1) p has no parent, 2) p is only child of its parent, 3) more than one pcb in child list and target p is first one, 4) it's one of more than one and isn't the first */
 pcb_PTR outChild (pcb_PTR p){ 
-	pcb_PTR *prnt = &(p->p_prnt);	
-	return outProcQ(prnt, p);
+	if (p->p_prnt == NULL) { /* case 1 */
+		return NULL;
+	}
+	if (p->p_prnt->p_child == p) { /* either falls into case 2 or 3 */
+		if (p->p_next == NULL) { /* case 2 */
+			p->p_prnt->p_child == NULL; /* no more children of its parent */
+			return p;
+		}
+		/* case 3 */
+		p->p_prnt->p_child = p->p_next; /* next child is now first child */
+		p->p_prnt->p_child->p_prev = NULL;
+		return p;
+	}
+	/* case 4, we know p isn't first child of its parent, so either p is end of child list or it's not */
+	if (p->p_next == NULL) { /* p is last node on child list */
+		p->p_prev->p_next == NULL;
+		return p;
+	}
+	/* still case 4, p is somewhere in the middle of the child list */
+	p->p_prev->p_next = p->p_next; /* adjust prev and next pointers of p's next and prev, respectively */
+	p->p_next->p_prev = p->p_prev;
+	return p;
 }
 
 
