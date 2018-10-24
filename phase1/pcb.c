@@ -59,24 +59,27 @@ int emptyProcQ (pcb_PTR tp){
 	return (tp == NULL);
 }
 
+/* cases: 1) empty procQ, 2) non-empty procQ */
 void insertProcQ (pcb_PTR *tp, pcb_PTR p){
-	if (emptyProcQ(*tp)) { /* empty q */
+	if (emptyProcQ(*tp)) { /* empty q case 1 */
 		*tp = p;
 		p->p_next = p;
 		p->p_prev = p;
 		return;
 	}
 	/* non-empty q */
-	else {
-		p->p_next = (*tp)->p_next;
-		(*tp)->p_next = p;
-		(*tp)->p_next->p_prev = p;
+	else { /* case 2 */
+		pcb_PTR tail = (*tp);
+		p->p_next = tail->p_next; /* set next of p */
+		p->p_prev = tail; /* set prev of p */
+		tail->p_next = p; /* set next of previous tail */
+		tail->p_next->p_prev = p; /* set prev of head */
 	}
 	/* set tail pointer */
 	(*tp) = p;
 }
 
-pcb_PTR removeProcQ (pcb_PTR *tp){
+pcb_PTR removeProcQ (pcb_PTR *tp){    /* might need to add just one pcb or empty procQ condition */
 	return outProcQ(tp, *tp);
 }
 
@@ -109,7 +112,7 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 
 pcb_PTR headProcQ (pcb_PTR tp){
 	if (emptyProcQ(tp)) return NULL;
-	return (tp->p_next);
+	return (tp);
 }
 
 int emptyChild (pcb_PTR p){
