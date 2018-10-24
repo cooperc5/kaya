@@ -79,11 +79,12 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 	(*tp) = p;
 }
 
+/* 2 cases: the q is empty so return null, or 2, remove first element */
 pcb_PTR removeProcQ (pcb_PTR *tp){
-	if (emptyProcQ(tp)) {
+	if (emptyProcQ(tp)) { /* case 1*/
 		return NULL;
 	}
-	return outProcQ(tp, *tp);
+	return outProcQ(tp, *tp); /* case 2 */
 }
 
 /* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is first one, 3) it's one of more than one and isn't the first, 4) or it's not there */
