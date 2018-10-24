@@ -79,7 +79,10 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 	(*tp) = p;
 }
 
-pcb_PTR removeProcQ (pcb_PTR *tp){    /* might need to add just one pcb or empty procQ condition */
+pcb_PTR removeProcQ (pcb_PTR *tp){
+	if (emptyProcQ(tp)) {
+		return NULL;
+	}
 	return outProcQ(tp, *tp);
 }
 
