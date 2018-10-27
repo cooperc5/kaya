@@ -1,53 +1,63 @@
 #ifndef ASL
 #define ASL
 
-/************************** ASL.E ******************************
-*
-*  The externals declaration file for the Active Semaphore List
-*    Module.
-*
-*  Written by Mikeyg
-*/
 
 #include "../h/types.h"
 #include "../e/pcb.e"
 
 
-HIDDEN static semd_t* semd_h;
-HIDDEN semd_t* semdFree;
+static semd_PTR semdASL;
+static semd_PTR semdFree;
 
 
-int insertBlocked (int *semAdd, pcb_PTR p) { /* 3 cases */
-	semd_t target = searchASL(semAdd);	
-	if (target == NULL) { /* semAdd not found */
-		allocSemd(semAdd, &p);
-		return NULL;
+int insertBlocked (int *semAdd, pcb_PTR p) {
+	semd_PTR target = searchASL(semAdd);	
+	semd_PTR newNode = allocSemd(semAdd);
+	if (newNode == NULL) {
+		return 1;
 	}
-	/* semAdd found */
-	insertProcQ(&target.s_procQ, p)
-	return 8; /* FIX */
+	newNode->s_next = target->s_next;
+	target->s_next = newNode;
+	insertProcQ(newNode->s_procQ, p);
+	return 0;
 }
 
 pcb_PTR removeBlocked (int *semAdd){
-	semd_t target = searchASL(semAdd);	
-	if (searchASL(semAdd) == NULL) return NULL;
-	return removeProcQ(&target.s_procQ);
+	semd_PTR target = searchASL(semAdd);	
+	if (target->s_next->s_semAdd != semAdd) {
+		return NULL;
+	} /* node found */
+	pcb_PTR removedPcb = removeProcQ(target->s_next->s_procQ);
+	if (emmptyProcQ(target->s_next->s_procQ)) { /* free semd if procQ is now empty */
+		semd_PTR emptySemd = target->s_next;
+		target->s_next = emptySemd->s_next;
+		freeSemd(emptySemd);
+	}
 }
 
 pcb_PTR outBlocked (pcb_PTR p){
-	semd_t a = *(p->p_semAdd);
-	if (a == NULL) return NULL;
-	return outProcQ(&a.s_procQ, p);
+	semd_PTR target = searchASL(semAdd);
+	if (target->s_next->s_semAdd != semAdd) { /* is the target semd there? */
+		return NULL;
+	} /*node found */
+	pcb_PTR removedPcb = outProcQ(&a.s_procQ, p);
+	if (emmptyProcQ(target->s_next->s_procQ)) { /* free semd if procQ is now empty */
+		semd_PTR emptySemd = target->s_next;
+		target->s_next = emptySemd->s_next;
+		freeSemd(emptySemd);
+	}
 }
 
 pcb_PTR headBlocked (int *semAdd){
-	semd_t target = searchASL(semAdd);
-	if (target == NULL) return null;
-	return headProcQ(target.s_procQ);
+	semd_PTR target = searchASL(semAdd);
+	if (target->s_next->s_semAdd != semAdd) { /* is the target semd there? */
+		return null;
+	}
+	return headProcQ(target->s_next->s_procQ);
 }
 
 void initASL () {
-	static semd_t foo[20];	/* init semd free list */
+	static semd_PTR foo[20];	/* init semd free list */
 	for (int i = 0; i<20; i++) {
 		foo[i] = mkEmptySemd();
 		freeSemd(foo[i]);
@@ -55,36 +65,53 @@ void initASL () {
 
 	/* init asl */
 	static semd_t dummy1, dummy2;  /* set up dummy nodes */
-	dummy1 = mkEmptySemd();  /* is this necessary? */
-	dummy2 = mkEmptySemd();
-	(*semd_h) = dummy1;
-	semd_h->s_next = dummy2;
+	semd_PTR dummy1 = mkEmptySemd();
+	semd_PTR dummy2 = mkEmptySemd();
+	dummy1->s_semAdd = 0;
+	dummy2->s_semAdd = MAXINT;
+	semdASL = dummy1;
+	semdASL->s_next = dummy2;
 }
 
-semd_t mkEmptySemd() {return NULL;  /* is this necessary? */}
+semd_PTR mkEmptySemd() {
+	return NULL;  /* is this necessary? */
+}
 
 /* search semd list method */
-semd_t searchASL(int *semAdd) {
+semd_PTR searchASL(int *semAdd) {
 	/* get past head dummy node */
-	semd_t current = *(semdFree->s_next);
-	if (*(current.s_semAdd) == *semAdd) return current;
-	if (*(current.s_semAdd) >= *semAdd) return NULL;
-	while ((current.s_semAdd) <= *semAdd && *(current.s_semAdd) != NULL) {   /* maybe need to add the null check first */
-		current = current.s_next;
-		if (*(current.s_semAdd) == *semAdd) return current;
+	semd_t current = semdFree;
+	
+	while (current->s_next->s_semAdd < semAdd) { /* next asl node is not equal to or higher than target semAdd */
+		current = current->s_next; /* advance to next asl node */
 	}
-	return NULL;
+	
+	return current; /* returns node just before where the target semAdd is or should be */
 }
 
 /* alloc semd method */
-void allocSemd(int *semAdd, pcb_PTR p) {
-	/* weave in */
+semd_PTR allocSemd(int *semAdd) {
+	if (*(semdFree) == NULL) { /*is free list empty? */
+		return NULL;
+	}
+	/* free list isn't empty */
+	semd_PTR allocated = semdFree; 
+	semdFree = semdFree->s_next;
+
+	/* clean the semd */
+	allocated->s_next = NULL;
+	allocated->s_procQ = mkEmptyProcQ();
+	allocated->s_semAdd = semAdd;
+
+	return allocated;
 }
 
 /* free semd method */
-void freeSemd(semd_t s) {
+void freeSemd(semd_PTR s) {
 	/* empty free list case */
-	if ((*semdFree) == NULL) semdFree->s_next = s;
+	if ((*semdFree) == NULL) {
+		semdFree->s_next = s;
+	}
 
 	/* non-empty free list case */
 	semd_t head = (*semdFree);

@@ -19,15 +19,6 @@ void freePcb (pcb_PTR p){
 
 pcb_PTR allocPcb (){
 	pcb_PTR tmp = removeProcQ(&pcbFree_h);
-
-	/*if (tmp != NULL) {
-		tmp->p_next = NULL;  /* initialize fields */
-		/*tmp->p_prev = NULL;
-		tmp->p_prnt = NULL;
-		tmp->p_child = NULL;
-		tmp->p_sib = NULL;
-		tmp->p_semAdd = NULL; 
-	}*/
 	
 	tmp->p_next = NULL;  /* initialize fields */
 	tmp->p_prev = NULL;
