@@ -7,8 +7,8 @@
 #include "../e/pcb.e"
 
 
-static semd_PTR semdASL;
-static semd_PTR semdFree;
+static semd_PTR semdASL; /* active semaphore list head ptr */
+static semd_PTR semdFree; /* semd free list head ptr */
 
 
 int insertBlocked (int *semAdd, pcb_PTR p) {
