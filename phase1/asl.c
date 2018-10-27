@@ -38,6 +38,8 @@ static semd_PTR allocSemd(int *semAdd) {
 	if (semdFree) 
 	semdFree = semdFree->s_next;
 
+	allocated->s_semAdd = semAdd;
+
 	return allocated;
 }
 
@@ -45,7 +47,6 @@ static semd_PTR cleanSemd(semd_PTR s) {
 	/* clean the semd */
 	s->s_next = NULL;
 	s->s_procQ = mkEmptyProcQ();
-	s->s_semAdd = semAdd;
 
 	return s;
 }
