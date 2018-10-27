@@ -18,9 +18,9 @@ char *mp2 = okbuf;
 
 void addokbuf(char *strp) {
 	char *tstrp = strp;
-	while ((*mp++ = *strp++) != '\0')
+	while ((*mp2++ = *strp++) != '\0')
 		;
-	mp--;
+	mp2--;
 	termprint(tstrp, 0);
 }
 
