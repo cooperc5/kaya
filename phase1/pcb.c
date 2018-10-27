@@ -161,6 +161,3 @@ pcb_PTR outChild (pcb_PTR p){
 	p->p_sib->p_prevSib = p->p_prevSib;
 	return p;
 }
-
-
-
