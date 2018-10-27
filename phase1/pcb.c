@@ -82,6 +82,7 @@ pcb_PTR removeProcQ (pcb_PTR *tp){
 /* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is first one, 3) it's one of more than one and isn't the first, 4) or it's not there */
 pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 	pcb_PTR firstPcb = *tp;
+	pcb_PTR current = firstPcb->p_next; /* current is now head pcb of procQ */
 	if (firstPcb == p) { /* first pcb is p */
 		if (p->p_next == p) { /* case 1: p is only pcb on the procQ tp */
 			(*tp) = NULL; /* set the tp to null to indicate an empty procQ */
@@ -93,7 +94,6 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		*tp = p->p_prev; /* adjust tp for procQ */
 	}
 	/* condition 3 */
-	pcb_PTR current = firstPcb->p_next; /* current is now head pcb of procQ */
 	while (current != firstPcb) { /*while current != tail pcb, i.e. the first one we checked */
 		if (current == p) {  /* find right pcb then... */
 			p->p_prev->p_next = p->p_next; /* redo next and prev pointers for nodes adjacent to p */
@@ -120,12 +120,13 @@ int emptyChild (pcb_PTR p){
 /* assumption: it's fine to insert new child at the head of the child list and it's fine to have child lists singly linked */
 /* cases: 1) empty child list, 2) non-empty child list */
 void insertChild (pcb_PTR prnt, pcb_PTR p){
+	pcb_PTR firstChild = prnt->p_child;
+
 	if (emptyChild(prnt)) { /* case 1 */
 		prnt->p_child = p; /* set p as child or prnt */
 		return;
 	}
 	/*case 2*/
-	pcb_PTR firstChild = prnt->p_child;
 	prnt->p_child = p; /* set p as new first child of prnt */
 	p->p_sib = firstChild;
 	firstChild->p_prevSib = p; /*adjust original first child's prev ptr */
