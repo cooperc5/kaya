@@ -84,7 +84,7 @@ pcb_PTR removeBlocked (int *semAdd){
 		return NULL;
 	} /* node found */
 	pcb_PTR removedPcb = removeProcQ(&(target->s_next->s_procQ));
-	if (emmptyProcQ(target->s_next->s_procQ)) { /* free semd if procQ is now empty */
+	if (emptyProcQ(target->s_next->s_procQ)) { /* free semd if procQ is now empty */
 		semd_PTR emptySemd = target->s_next;
 		target->s_next = emptySemd->s_next;
 		freeSemd(emptySemd);
@@ -99,7 +99,7 @@ pcb_PTR outBlocked (pcb_PTR p){
 	if (removedPcb == NULL) {
 		return NULL; /* pcb not found */
 	}
-	if (emmptyProcQ(target->s_next->s_procQ)) { /* free semd if procQ is now empty */
+	if (emptyProcQ(target->s_next->s_procQ)) { /* free semd if procQ is now empty */
 		semd_PTR emptySemd = target->s_next;
 		target->s_next = emptySemd->s_next;
 		freeSemd(emptySemd);
