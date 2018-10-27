@@ -136,21 +136,22 @@ pcb_PTR headBlocked (int *semAdd){
 
 void initASL () {
 	addokbuf("entered initASL");
-	static semd_PTR foo[20];	/* init semd free list */
+	static semd_t foo[MAXPROC + 2];	/* init semd free list */
 	int i;
-	for (i = 0; i<20; i++) {
+	for (i = 0; i<MAXPROC; i++) {
 		foo[i] = mkEmptySemd();
-		freeSemd(foo[i]);
+		freeSemd(&foo[i]);
 	}
 
 	/* init asl */
-	static semd_PTR dummy1, dummy2;  /* set up dummy nodes */
-	dummy1 = mkEmptySemd();
-	dummy2 = mkEmptySemd();
+	semd_PTR dummy1, dummy2;  /* set up dummy nodes */
+	dummy1 = &(foo[MAXPROC]);
+	dummy2 = &(foo[MAXPROC + 1]);
 	dummy1->s_semAdd = 0;
 	dummy2->s_semAdd = MAXINT;
 	semdASL = dummy1;
 	semdASL->s_next = dummy2;
+	dummy2->s_next = NULL;
 	addokbuf("finished initASL");
 }
 
