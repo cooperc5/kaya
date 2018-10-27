@@ -13,7 +13,7 @@
 HIDDEN pcb_PTR pcbFree_h;
 
 char okbuf2[2048];	
-char *mp2 = okbuf;
+char *mp2 = okbuf2;
 
 
 void addokbuf2(char *strp) {
