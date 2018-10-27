@@ -74,7 +74,7 @@ int insertBlocked (int *semAdd, pcb_PTR p) {
 	}
 	newNode->s_next = target->s_next;
 	target->s_next = newNode;
-	insertProcQ(*(newNode->s_procQ), p);
+	insertProcQ(&(newNode->s_procQ), p);
 	return 0;
 }
 
@@ -110,14 +110,15 @@ pcb_PTR outBlocked (pcb_PTR p){
 pcb_PTR headBlocked (int *semAdd){
 	semd_PTR target = searchASL(semAdd);
 	if (target->s_next->s_semAdd != semAdd) { /* is the target semd there? */
-		return null;
+		return NULL;
 	}
 	return headProcQ(target->s_next->s_procQ);
 }
 
 void initASL () {
 	static semd_PTR foo[20];	/* init semd free list */
-	for (int i = 0; i<20; i++) {
+	int i;
+	for (i = 0; i<20; i++) {
 		foo[i] = mkEmptySemd();
 		freeSemd(foo[i]);
 	}
