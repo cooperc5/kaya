@@ -81,9 +81,9 @@ semd_PTR mkEmptySemd() {
 }
 
 /* search semd list method */
-semd_PTR searchASL(int *semAdd) {
+static semd_PTR searchASL(int *semAdd) {
 	/* get past head dummy node */
-	semd_t current = semdFree;
+	semd_PTR current = semdFree;
 	
 	while (current->s_next->s_semAdd < semAdd) { /* next asl node is not equal to or higher than target semAdd */
 		current = current->s_next; /* advance to next asl node */
@@ -93,26 +93,25 @@ semd_PTR searchASL(int *semAdd) {
 }
 
 /* alloc semd method */
-semd_PTR allocSemd(int *semAdd) {
-	if (*(semdFree) == NULL) { /*is free list empty? */
+static semd_PTR allocSemd(int *semAdd) {
+	if (semdFree == NULL) { /*is free list empty? */
 		return NULL;
 	}
 	/* free list isn't empty */
-	semd_PTR allocated = semdFree; 
+	semd_PTR allocated = semdFree;
+	/* is the semd to be allocated the only one in the list? */
+	if (semdFree) 
 	semdFree = semdFree->s_next;
-
-	/* clean the semd */
-	allocated->s_next = NULL;
-	allocated->s_procQ = mkEmptyProcQ();
-	allocated->s_semAdd = semAdd;
 
 	return allocated;
 }
 
 /* free semd method */
-void freeSemd(semd_PTR s) {
+static void freeSemd(semd_PTR s) {
+	cleanSemd(s);
+
 	/* empty free list case */
-	if ((*semdFree) == NULL) {
+	if (semdFree == NULL) {
 		semdFree->s_next = s;
 	}
 
@@ -120,6 +119,15 @@ void freeSemd(semd_PTR s) {
 	semd_t head = (*semdFree);
 	semdFree->s_next = s;
 	s->s_next = head;
+}
+
+static semd_PTR cleanSemd(semd_PTR s) {
+	/* clean the semd */
+	s->s_next = NULL;
+	s->s_procQ = mkEmptyProcQ();
+	s->s_semAdd = semAdd;
+
+	return s;
 }
 
 /***************************************************************/
