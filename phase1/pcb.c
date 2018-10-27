@@ -12,11 +12,11 @@
 
 HIDDEN pcb_PTR pcbFree_h;
 
-char okbuf[2048];	
+char okbuf2[2048];	
 char *mp2 = okbuf;
 
 
-void addokbuf(char *strp) {
+void addokbuf2(char *strp) {
 	char *tstrp = strp;
 	while ((*mp2++ = *strp++) != '\0')
 		;
@@ -26,12 +26,12 @@ void addokbuf(char *strp) {
 
 
 void freePcb (pcb_PTR p){
-	addokbuf("entered and finished? freePcb");
+	addokbuf2("entered and finished? freePcb");
 	insertProcQ(&pcbFree_h, p);
 }
 
 pcb_PTR allocPcb (){
-	addokbuf("entered allocPcb");
+	addokbuf2("entered allocPcb");
 	pcb_PTR tmp = removeProcQ(&pcbFree_h);
 	
 	tmp->p_next = NULL;  /* initialize fields */
@@ -43,41 +43,41 @@ pcb_PTR allocPcb (){
 	tmp->p_semAdd = NULL;  
 
 	if(tmp != NULL) return tmp;
-	addokbuf("finished allocPcb");
+	addokbuf2("finished allocPcb");
 	return NULL;
 }
 
 void initPcbs (){
-	addokbuf("entered initPcbs");
+	addokbuf2("entered initPcbs");
 	static pcb_PTR foo[MAXPROC];	
 	int i;
 	for (i = 0; i < MAXPROC; i++) {
 		foo[i] = mkEmptyProcQ();
 		freePcb(foo[i]);
 	}
-	addokbuf("finished initPcbs");
+	addokbuf2("finished initPcbs");
 }
 
 
 
 pcb_PTR mkEmptyProcQ (){
-	addokbuf("entered mkEmptyProcQ");
+	addokbuf2("entered mkEmptyProcQ");
 	return NULL;
 }
 
 int emptyProcQ (pcb_PTR tp){
-	addokbuf("entered emptyProcQ");
+	addokbuf2("entered emptyProcQ");
 	return (tp == NULL);
 }
 
 /* cases: 1) empty procQ, 2) non-empty procQ */
 void insertProcQ (pcb_PTR *tp, pcb_PTR p){
-	addokbuf("entered insertProcQ");
+	addokbuf2("entered insertProcQ");
 	if (emptyProcQ(*tp)) { /* empty q case 1 */
 		*tp = p;
 		p->p_next = p;
 		p->p_prev = p;
-		addokbuf("insertProcQ finished");
+		addokbuf2("insertProcQ finished");
 		return;
 	}
 	/* non-empty q */
@@ -90,29 +90,29 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 	}
 	/* set tail pointer */
 	(*tp) = p;
-	addokbuf("insertProcQ finished");
+	addokbuf2("insertProcQ finished");
 }
 
 /* 2 cases: the q is empty so return null, or 2, remove first element */
 pcb_PTR removeProcQ (pcb_PTR *tp){
-	addokbuf("entered removeProcQ");
+	addokbuf2("entered removeProcQ");
 	if (emptyProcQ(*tp)) { /* case 1*/
-		addokbuf("removeProcQ finished");
+		addokbuf2("removeProcQ finished");
 		return NULL;
 	}
-	addokbuf("removeProcQ finished");
+	addokbuf2("removeProcQ finished");
 	return outProcQ(tp, *tp); /* case 2 */
 }
 
 /* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is first one, 3) it's one of more than one and isn't the first, 4) or it's not there */
 pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
-	addokbuf("entered outProcQ");
+	addokbuf2("entered outProcQ");
 	pcb_PTR firstPcb = *tp;
 	pcb_PTR current = firstPcb->p_next; /* current is now head pcb of procQ */
 	if (firstPcb == p) { /* first pcb is p */
 		if (p->p_next == p) { /* case 1: p is only pcb on the procQ tp */
 			(*tp) = NULL; /* set the tp to null to indicate an empty procQ */
-			addokbuf("outProcQ finished");
+			addokbuf2("outProcQ finished");
 			return p;
 		}
 		/* condition 2 */
@@ -125,82 +125,82 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		if (current == p) {  /* find right pcb then... */
 			p->p_prev->p_next = p->p_next; /* redo next and prev pointers for nodes adjacent to p */
 			p->p_next->p_prev = p->p_prev;
-			addokbuf("outProcQ finished");
+			addokbuf2("outProcQ finished");
 			return p;
 		}		
 		current = current->p_next;
 	}
 	/* case 3: target pcb not found in procQ */
-	addokbuf("outProcQ finished");
+	addokbuf2("outProcQ finished");
 	return NULL;		
 }
 
 pcb_PTR headProcQ (pcb_PTR tp){
-	addokbuf("entered headProcQ");
+	addokbuf2("entered headProcQ");
 	if (emptyProcQ(tp)) {
-		addokbuf("headProcQ finished");
+		addokbuf2("headProcQ finished");
 		return NULL;
 	}
-	addokbuf("headProcQ finished");
+	addokbuf2("headProcQ finished");
 	return (tp);
 }
 
 int emptyChild (pcb_PTR p){
-	addokbuf("entered and finished? emptyChild");
+	addokbuf2("entered and finished? emptyChild");
 	return (p->p_child == NULL);
 }
 
 /* assumption: it's fine to insert new child at the head of the child list and it's fine to have child lists singly linked */
 /* cases: 1) empty child list, 2) non-empty child list */
 void insertChild (pcb_PTR prnt, pcb_PTR p){
-	addokbuf("entered insertChild");
+	addokbuf2("entered insertChild");
 	pcb_PTR firstChild = prnt->p_child;
 
 	if (emptyChild(prnt)) { /* case 1 */
 		prnt->p_child = p; /* set p as child or prnt */
-		addokbuf("finished insertChild");
+		addokbuf2("finished insertChild");
 		return;
 	}
 	/*case 2*/
 	prnt->p_child = p; /* set p as new first child of prnt */
 	p->p_sib = firstChild;
 	firstChild->p_prevSib = p; /*adjust original first child's prev ptr */
-	addokbuf("finished insertChild");
+	addokbuf2("finished insertChild");
 }
 
 pcb_PTR removeChild (pcb_PTR p){
-	addokbuf("entered and finished? removeChild");
+	addokbuf2("entered and finished? removeChild");
 	return outChild(p->p_child);
 }
 
 /* five conditions to account for: 1) p has no parent, 2) p is only child of its parent, 3) more than one pcb in child list and target p is first one, 4) it's one of more than one and isn't the first */
 pcb_PTR outChild (pcb_PTR p){ 
-	addokbuf("entered outChild");
+	addokbuf2("entered outChild");
 	if (p->p_prnt == NULL) { /* case 1 */
-		addokbuf("finished outChild");
+		addokbuf2("finished outChild");
 		return NULL;
 	}
 	if (p->p_prnt->p_child == p) { /* if p is the first child, either falls into case 2 or 3 */
 		if (p->p_sib == NULL) { /* case 2 - p is only child */
 			p->p_prnt->p_child = NULL; /* no more children of its parent */
-			addokbuf("finished outChild");
+			addokbuf2("finished outChild");
 			return p;
 		}
 		/* case 3 */
 		p->p_prnt->p_child = p->p_sib; /* next child is now first child */
 		p->p_prnt->p_child->p_prevSib = NULL;
-		addokbuf("finished outChild");
+		addokbuf2("finished outChild");
 		return p;
 	}
 	/* case 4, we know p isn't first child of its parent, so either p is end of child list or it's not */
 	if (p->p_sib == NULL) { /* p is last node on child list */
 		p->p_prevSib->p_sib == NULL;
-		addokbuf("finished outChild");
+		addokbuf2("finished outChild");
 		return p;
 	}
 	/* still case 4, p is somewhere in the middle of the child list */
 	p->p_prevSib->p_sib = p->p_sib; /* adjust prev and next pointers of p's next and prev, respectively */
 	p->p_sib->p_prevSib = p->p_prevSib;
-	addokbuf("finished outChild");
+	addokbuf2("finished outChild");
 	return p;
 }
