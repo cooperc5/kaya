@@ -3,6 +3,7 @@
 
 
 #include "../h/types.h"
+#include "../h/const.h"
 #include "../e/pcb.e"
 
 
@@ -24,7 +25,7 @@ int insertBlocked (int *semAdd, pcb_PTR p) {
 
 pcb_PTR removeBlocked (int *semAdd){
 	semd_PTR target = searchASL(semAdd);	
-	if (target->s_next->s_semAdd != semAdd) {
+	if (target->s_next->s_semAdd != semAdd) { /* is the target semd there? */
 		return NULL;
 	} /* node found */
 	pcb_PTR removedPcb = removeProcQ(target->s_next->s_procQ);
@@ -33,6 +34,7 @@ pcb_PTR removeBlocked (int *semAdd){
 		target->s_next = emptySemd->s_next;
 		freeSemd(emptySemd);
 	}
+	return removedPcb;
 }
 
 pcb_PTR outBlocked (pcb_PTR p){
@@ -46,6 +48,7 @@ pcb_PTR outBlocked (pcb_PTR p){
 		target->s_next = emptySemd->s_next;
 		freeSemd(emptySemd);
 	}
+	return removedPcb;
 }
 
 pcb_PTR headBlocked (int *semAdd){
@@ -64,9 +67,9 @@ void initASL () {
 	}
 
 	/* init asl */
-	static semd_t dummy1, dummy2;  /* set up dummy nodes */
-	semd_PTR dummy1 = mkEmptySemd();
-	semd_PTR dummy2 = mkEmptySemd();
+	static semd_PTR dummy1, dummy2;  /* set up dummy nodes */
+	dummy1 = mkEmptySemd();
+	dummy2 = mkEmptySemd();
 	dummy1->s_semAdd = 0;
 	dummy2->s_semAdd = MAXINT;
 	semdASL = dummy1;
@@ -74,7 +77,7 @@ void initASL () {
 }
 
 semd_PTR mkEmptySemd() {
-	return NULL;  /* is this necessary? */
+	return NULL;
 }
 
 /* search semd list method */
