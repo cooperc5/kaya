@@ -16,14 +16,15 @@ char okbuf2[2048];
 char *mp2 = okbuf2;
 
 
-void addokbuf2(char *strp) {
-	char *tstrp = strp;
-	while ((*mp2++ = *strp++) != '\0')
-		;
-	mp2--;
-	termprint(tstrp, 0);
+pcb_PTR mkEmptyProcQ (){
+	addokbuf("entered mkEmptyProcQ");
+	return NULL;
 }
 
+int emptyProcQ (pcb_PTR tp){
+	addokbuf("entered emptyProcQ");
+	return (tp == NULL);
+}
 
 void freePcb (pcb_PTR p){
 	addokbuf("entered and finished? freePcb");
@@ -56,18 +57,6 @@ void initPcbs (){
 		freePcb(foo[i]);
 	}
 	addokbuf("finished initPcbs");
-}
-
-
-
-pcb_PTR mkEmptyProcQ (){
-	addokbuf("entered mkEmptyProcQ");
-	return NULL;
-}
-
-int emptyProcQ (pcb_PTR tp){
-	addokbuf("entered emptyProcQ");
-	return (tp == NULL);
 }
 
 /* cases: 1) empty procQ, 2) non-empty procQ */
