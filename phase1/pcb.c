@@ -70,15 +70,15 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 	/* non-empty q */
 	else { /* case 2 */
 		addokbuf("\n*emptyProcQ false in insertProcQ*");
-		pcb_PTR tail = (*tp);
+		
 		addokbuf("\n*line 74*");
-		p->p_next = tail->p_next; /* set next of p */
+		p->p_next = (*tp)->p_next; /* set next of p */
 		addokbuf("\n*line 76*");
-		p->p_prev = tail; /* set prev of p */
+		p->p_prev = (*tp); /* set prev of p */
 		addokbuf("\n*line 78*");
-		tail->p_next = p; /* set next of previous tail */
+		(*tp)->p_next = p; /* set next of previous tail */
 		addokbuf("\n*line 80*");
-		tail->p_next->p_prev = p; /* set prev of head */
+		(*tp)->p_next->p_prev = p; /* set prev of head */
 		addokbuf("\n*line 82*");
 	}
 	/* set tail pointer */
