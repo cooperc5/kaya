@@ -63,20 +63,26 @@ void initPcbs (){
 void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 	addokbuf("entered insertProcQ");
 	if (emptyProcQ(*tp)) { /* empty q case 1 */
-		addokbuf("*\nemptyProcQ true in insertProcQ*");
+		addokbuf("\n*emptyProcQ true in insertProcQ*");
 		p->p_next = p;
 		p->p_prev = p;
 	}
 	/* non-empty q */
 	else { /* case 2 */
-		addokbuf("*\nemptyProcQ false in insertProcQ*");
+		addokbuf("\n*emptyProcQ false in insertProcQ*");
 		pcb_PTR tail = (*tp);
+		addokbuf("\n*line 74*");
 		p->p_next = tail->p_next; /* set next of p */
+		addokbuf("\n*line 76*");
 		p->p_prev = tail; /* set prev of p */
+		addokbuf("\n*line 78*");
 		tail->p_next = p; /* set next of previous tail */
+		addokbuf("\n*line 80*");
 		tail->p_next->p_prev = p; /* set prev of head */
+		addokbuf("\n*line 82*");
 	}
 	/* set tail pointer */
+	addokbuf("\n*exited insertProcQ else");
 	(*tp) = p;
 	addokbuf("insertProcQ finished");
 }
