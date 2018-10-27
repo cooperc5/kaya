@@ -136,10 +136,11 @@ pcb_PTR headBlocked (int *semAdd){
 
 void initASL () {
 	addokbuf("entered initASL");
+	semdASL = mkEmptySemd();
+	semdFree = mkEmptySemd();
 	static semd_t foo[MAXPROC + 2];	/* init semd free list */
 	int i;
 	for (i = 0; i<MAXPROC; i++) {
-		foo[i] = mkEmptySemd();
 		freeSemd(&foo[i]);
 	}
 

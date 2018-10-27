@@ -50,10 +50,10 @@ pcb_PTR allocPcb (){
 
 void initPcbs (){
 	addokbuf("\nentered initPcbs");
+	pcbFree_h = mkEmptyProcQ();
 	static pcb_t initialPcbs[MAXPROC];	
 	int i;
 	for (i = 0; i < MAXPROC; i++) {
-		initialPcbs[i] = mkEmptyProcQ();
 		freePcb(&(initialPcbs[i]));
 	}
 	addokbuf("\nfinished initPcbs");
