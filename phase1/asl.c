@@ -61,7 +61,7 @@ static void freeSemd(semd_PTR s) {
 	}
 
 	/* non-empty free list case */
-	semd_t head = (*semdFree);
+	semd_PTR head = semdFree;
 	semdFree->s_next = s;
 	s->s_next = head;
 }
@@ -74,7 +74,7 @@ int insertBlocked (int *semAdd, pcb_PTR p) {
 	}
 	newNode->s_next = target->s_next;
 	target->s_next = newNode;
-	insertProcQ(newNode->s_procQ, p);
+	insertProcQ(*(newNode->s_procQ), p);
 	return 0;
 }
 
@@ -83,7 +83,7 @@ pcb_PTR removeBlocked (int *semAdd){
 	if (target->s_next->s_semAdd != semAdd) { /* is the target semd there? */
 		return NULL;
 	} /* node found */
-	pcb_PTR removedPcb = removeProcQ(target->s_next->s_procQ);
+	pcb_PTR removedPcb = removeProcQ(&(target->s_next->s_procQ));
 	if (emmptyProcQ(target->s_next->s_procQ)) { /* free semd if procQ is now empty */
 		semd_PTR emptySemd = target->s_next;
 		target->s_next = emptySemd->s_next;
@@ -93,11 +93,12 @@ pcb_PTR removeBlocked (int *semAdd){
 }
 
 pcb_PTR outBlocked (pcb_PTR p){
-	semd_PTR target = searchASL(semAdd);
-	if (target->s_next->s_semAdd != semAdd) { /* is the target semd there? */
-		return NULL;
-	} /*node found */
-	pcb_PTR removedPcb = outProcQ(&a.s_procQ, p);
+	semd_PTR target = searchASL(p->p_semAdd); /* get semd associated with pcb */
+	
+	pcb_PTR removedPcb = outProcQ(&(target->s_next->s_procQ), p);
+	if (removedPcb == NULL) {
+		return NULL; /* pcb not found */
+	}
 	if (emmptyProcQ(target->s_next->s_procQ)) { /* free semd if procQ is now empty */
 		semd_PTR emptySemd = target->s_next;
 		target->s_next = emptySemd->s_next;

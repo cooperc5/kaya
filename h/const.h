@@ -9,6 +9,7 @@
 
 /* Maximum process blocks */
 #define MAXPROC  		20
+#define MAXINT 2147483647
 
 
 /* Hardware & software constants */
