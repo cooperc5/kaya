@@ -17,12 +17,12 @@ char *mp2 = okbuf2;
 
 
 pcb_PTR mkEmptyProcQ (){
-	addokbuf("entered mkEmptyProcQ");
+	/*addokbuf("entered mkEmptyProcQ");*/
 	return NULL;
 }
 
 int emptyProcQ (pcb_PTR tp){
-	addokbuf("entered emptyProcQ");
+	/*addokbuf("entered emptyProcQ");*/
 	return (tp == NULL);
 }
 
@@ -49,14 +49,14 @@ pcb_PTR allocPcb (){
 }
 
 void initPcbs (){
-	addokbuf("entered initPcbs");
+	/*addokbuf("entered initPcbs");*/
 	static pcb_PTR foo[MAXPROC];	
 	int i;
 	for (i = 0; i < MAXPROC; i++) {
 		foo[i] = mkEmptyProcQ();
 		freePcb(foo[i]);
 	}
-	addokbuf("finished initPcbs");
+	/*addokbuf("finished initPcbs");*/
 }
 
 /* cases: 1) empty procQ, 2) non-empty procQ */
