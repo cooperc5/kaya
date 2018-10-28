@@ -34,17 +34,21 @@ void freePcb (pcb_PTR p){
 pcb_PTR allocPcb (){
 	addokbuf("\nentered allocPcb");
 	pcb_PTR tmp = removeProcQ(&pcbFree_h);
-	
-	tmp->p_next = NULL;  /* initialize fields */
-	tmp->p_prev = NULL;
-	tmp->p_prnt = NULL;
-	tmp->p_child = NULL;
-	tmp->p_sib = NULL;
-	tmp->p_prevSib = NULL;
-	tmp->p_semAdd = NULL;  
 
-	if(tmp != NULL) return tmp;
-	addokbuf("\nfinished allocPcb");
+	if(tmp != NULL) {
+		tmp->p_next = NULL;  /* initialize fields */
+		tmp->p_prev = NULL;
+		tmp->p_prnt = NULL;
+		tmp->p_child = NULL;
+		tmp->p_sib = NULL;
+		tmp->p_prevSib = NULL;
+		tmp->p_semAdd = NULL; 
+
+		addokbuf("\nfinished allocPcb normal");
+		return tmp;
+	}
+
+	addokbuf("\nfinished allocPcb NULL");
 	return NULL;
 }
 
@@ -111,7 +115,7 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		p->p_next->p_prev = p->p_prev; /* adjust prev pointer for head of procQ */
 		addokbuf("\nline 112");
 		*tp = p->p_prev; /* adjust tp for procQ */
-		addokbuf("\nline 114");
+		addokbuf("\nfinished outProcQ 114");
 		return p;
 	}
 	/* condition 3 */
