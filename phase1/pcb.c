@@ -63,26 +63,17 @@ void initPcbs (){
 void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 	addokbuf("\nentered insertProcQ");
 	if (emptyProcQ(*tp)) { /* empty q case 1 */
-		addokbuf("\n*emptyProcQ true in insertProcQ*");
 		p->p_next = p;
 		p->p_prev = p;
 	}
 	/* non-empty q */
 	else { /* case 2 */
-		addokbuf("\n*emptyProcQ false in insertProcQ*");
-		
-		addokbuf("\n*line 74*");
 		p->p_next = (*tp)->p_next; /* set next of p */
-		addokbuf("\n*line 76*");
 		p->p_prev = (*tp); /* set prev of p */
-		addokbuf("\n*line 78*");
 		(*tp)->p_next = p; /* set next of previous tail */
-		addokbuf("\n*line 80*");
 		(*tp)->p_next->p_prev = p; /* set prev of head */
-		addokbuf("\n*line 82*");
 	}
 	/* set tail pointer */
-	addokbuf("\n*exited insertProcQ else");
 	(*tp) = p;
 	addokbuf("\ninsertProcQ finished");
 }
@@ -102,27 +93,42 @@ pcb_PTR removeProcQ (pcb_PTR *tp){
 pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 	addokbuf("\nentered outProcQ");
 	pcb_PTR firstPcb = *tp;
+	addokbuf("\nline 96");
 	pcb_PTR current = firstPcb->p_next; /* current is now head pcb of procQ */
+	addokbuf("\nline 98");
 	if (firstPcb == p) { /* first pcb is p */
+		addokbuf("\nline 100");
 		if (p->p_next == p) { /* case 1: p is only pcb on the procQ tp */
+			addokbuf("\nline 102");
 			(*tp) = NULL; /* set the tp to null to indicate an empty procQ */
 			addokbuf("\noutProcQ finished");
 			return p;
 		}
 		/* condition 2 */
+		addokbuf("\nline 108");
 		p->p_prev->p_next = p->p_next; /*adjust next pointer for new tail of procQ */
+		addokbuf("\nline 110");
 		p->p_next->p_prev = p->p_prev; /* adjust prev pointer for head of procQ */
+		addokbuf("\nline 112");
 		*tp = p->p_prev; /* adjust tp for procQ */
+		addokbuf("\nline 114");
+		return p;
 	}
 	/* condition 3 */
+	addokbuf("\nline 118");
 	while (current != firstPcb) { /*while current != tail pcb, i.e. the first one we checked */
+		addokbuf("\nline 120");
 		if (current == p) {  /* find right pcb then... */
+			addokbuf("\nline 122");
 			p->p_prev->p_next = p->p_next; /* redo next and prev pointers for nodes adjacent to p */
+			addokbuf("\nline 124");
 			p->p_next->p_prev = p->p_prev;
 			addokbuf("\noutProcQ finished");
 			return p;
 		}		
+		addokbuf("\nline 129");
 		current = current->p_next;
+		addokbuf("\nline 131");
 	}
 	/* case 3: target pcb not found in procQ */
 	addokbuf("\noutProcQ finished");
