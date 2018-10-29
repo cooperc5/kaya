@@ -93,7 +93,7 @@ pcb_PTR removeProcQ (pcb_PTR *tp){
 	return outProcQ(tp, *tp); /* case 2 */
 }
 
-/* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is first one, 3) it's one of more than one and isn't the first, 4) or it's not there */
+/* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is tail, 3) it's one of more than one and isn't the first, 4) or it's not there */
 pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 	addokbuf("\nentered outProcQ");
 
@@ -102,11 +102,11 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		return NULL;
 	}
 	addokbuf("\nline 104");
-	pcb_PTR firstPcb = *tp;
+	pcb_PTR tail = (*tp);
 	addokbuf("\nline 96");
 	pcb_PTR current = firstPcb->p_next; /* current is now head pcb of procQ */
 	addokbuf("\nline 98");
-	if (firstPcb == p) { /* first pcb is p */
+	if (tail == p) { /* first pcb is p */
 		addokbuf("\nline 100");
 		if (p->p_next == p) { /* case 1: p is only pcb on the procQ tp */
 			addokbuf("\nline 102");
@@ -116,17 +116,17 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		}
 		/* condition 2 */
 		addokbuf("\nline 108");
-		p->p_prev->p_next = p->p_next; /*adjust next pointer for new tail of procQ */
+		tail->p_prev->p_next = tail->p_next; /*adjust next pointer for new tail of procQ */
 		addokbuf("\nline 110");
-		p->p_next->p_prev = p->p_prev; /* adjust prev pointer for head of procQ */
+		tail->p_next->p_prev = tail->p_prev; /* adjust prev pointer for head of procQ */
 		addokbuf("\nline 112");
-		*tp = p->p_prev; /* adjust tp for procQ */
+		(*tp) = tail->p_prev; /* adjust tp for procQ */
 		addokbuf("\nfinished outProcQ 114");
-		return p;
+		return tail;
 	}
 	/* condition 3 */
 	addokbuf("\nline 118");
-	while (current != firstPcb) { /*while current != tail pcb, i.e. the first one we checked */
+	while (current != tail) { /*while current != tail pcb, i.e. the first one we checked */
 		addokbuf("\nline 120");
 		if (current == p) {  /* find right pcb then... */
 			addokbuf("\nline 122");
