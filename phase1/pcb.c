@@ -102,31 +102,32 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		return NULL;
 	}
 	addokbuf("\nline 104");
-	pcb_PTR tail = (*tp);
 	addokbuf("\nline 96");
-	pcb_PTR current = tail->p_next; /* current is now head pcb of procQ */
+	 /* current is now head pcb of procQ */
 	addokbuf("\nline 98");
-	if (tail == p) { /* first pcb is p */
+	if ((*tp) == p) { /* first pcb is p */
 		addokbuf("\nline 100");
-		if (p->p_next == p) { /* case 1: p is only pcb on the procQ tp */
+		if ((*tp)->p_next == (*tp)) { /* case 1: p is only pcb on the procQ tp */
 			addokbuf("\nline 102");
-			(*tp) = NULL; /* set the tp to null to indicate an empty procQ */
+			(*tp) = mkEmptyProcQ; /* set the tp to null to indicate an empty procQ */
 			addokbuf("\noutProcQ finished");
-			return p;
+			return (*tp);
 		}
 		/* condition 2 */
 		addokbuf("\nline 108");
-		tail->p_prev->p_next = tail->p_next; /*adjust next pointer for new tail of procQ */
+		(*tp)->p_prev->p_next = (*tp)->p_next; /*adjust next pointer for new tail of procQ */
 		addokbuf("\nline 110");
-		tail->p_next->p_prev = tail->p_prev; /* adjust prev pointer for head of procQ */
+		(*tp)->p_next->p_prev = tail->p_prev; /* adjust prev pointer for head of procQ */
 		addokbuf("\nline 112");
-		(*tp) = tail->p_prev; /* adjust tp for procQ */
+		(*tp) = (*tp)->p_prev; /* adjust tp for procQ */
 		addokbuf("\nfinished outProcQ 114");
-		return tail;
+		return (*tp);
 	}
 	/* condition 3 */
+	pcb_PTR current = (*tp)->p_next;
+
 	addokbuf("\nline 118");
-	while (current != tail) { /*while current != tail pcb, i.e. the first one we checked */
+	while (current != (*tp)) { /*while current != tail pcb, i.e. the first one we checked */
 		addokbuf("\nline 120");
 		if (current == p) {  /* find right pcb then... */
 			addokbuf("\nline 122");
