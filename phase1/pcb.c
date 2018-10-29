@@ -117,7 +117,7 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		addokbuf("\nline 108");
 		(*tp)->p_prev->p_next = (*tp)->p_next; /*adjust next pointer for new tail of procQ */
 		addokbuf("\nline 110");
-		(*tp)->p_next->p_prev = tail->p_prev; /* adjust prev pointer for head of procQ */
+		(*tp)->p_next->p_prev = (*tp)->p_prev; /* adjust prev pointer for head of procQ */
 		addokbuf("\nline 112");
 		(*tp) = (*tp)->p_prev; /* adjust tp for procQ */
 		addokbuf("\nfinished outProcQ 114");
