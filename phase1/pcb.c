@@ -104,7 +104,7 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 	addokbuf("\nline 104");
 	pcb_PTR tail = (*tp);
 	addokbuf("\nline 96");
-	pcb_PTR current = firstPcb->p_next; /* current is now head pcb of procQ */
+	pcb_PTR current = tail->p_next; /* current is now head pcb of procQ */
 	addokbuf("\nline 98");
 	if (tail == p) { /* first pcb is p */
 		addokbuf("\nline 100");
