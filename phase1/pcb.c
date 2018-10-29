@@ -96,6 +96,12 @@ pcb_PTR removeProcQ (pcb_PTR *tp){
 /* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is first one, 3) it's one of more than one and isn't the first, 4) or it's not there */
 pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 	addokbuf("\nentered outProcQ");
+
+	if (emptyProcQ(*tp)) {
+		addokbuf("\nline 101");
+		return NULL;
+	}
+	addokbuf("\nline 104");
 	pcb_PTR firstPcb = *tp;
 	addokbuf("\nline 96");
 	pcb_PTR current = firstPcb->p_next; /* current is now head pcb of procQ */
