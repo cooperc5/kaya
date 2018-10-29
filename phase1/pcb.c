@@ -103,6 +103,7 @@ pcb_PTR outProcQ(pcb_PTR* tp, pcb_PTR p) {
 		the list - therefore its tp must be updated.
 		THIRD: the pcb_t is adjectent to 1 or more
 		pcb_t and must be adjusted */
+	addokbuf("\nentered outProcQ");
 		if(emptyProcQ(*tp)) {
 			/* there is no process queue. our work here is done */
 			return NULL;
@@ -120,6 +121,7 @@ pcb_PTR outProcQ(pcb_PTR* tp, pcb_PTR p) {
 					/* goodbye */
 					(*tp) = mkEmptyProcQ();
 					/* what we were looking for was the tail pointer - all done! */
+					addokbuf("\nline 124 outProcQ finished");
 					return rmvdPcb;
 				} else {
 					/* this takes a little more work. we are looking
@@ -131,6 +133,7 @@ pcb_PTR outProcQ(pcb_PTR* tp, pcb_PTR p) {
 					(*tp)->p_prev->p_next = (*tp)->p_next;
 					/* reasign the tp - someones lucky day */
 					(*tp) = (*tp)->p_prev;
+					addokbuf("\nline 135 outProcQ finished");
 					return rmvdPcb;
 				}
 			} else {
@@ -148,6 +151,7 @@ pcb_PTR outProcQ(pcb_PTR* tp, pcb_PTR p) {
 							but if it is at the head, i.e. the tp next,
 							then simply implement the removeProcQ function to
 							accomplish this task and save some work */
+							addokbuf("\nline 154 outProcQ finished");
 							return removeProcQ(tp);
 						} else {
 							/* this is perhaps the most taxing case; here,
@@ -156,6 +160,7 @@ pcb_PTR outProcQ(pcb_PTR* tp, pcb_PTR p) {
 							currentPcb->p_next->p_prev = currentPcb->p_prev;
 							currentPcb->p_prev->p_next = currentPcb->p_next;
 							/* jobs all done */
+							addokbuf("\nline 163 outProcQ finished");
 							return currentPcb;
 
 						}
@@ -166,6 +171,7 @@ pcb_PTR outProcQ(pcb_PTR* tp, pcb_PTR p) {
 				}
 				/* if this loop exits, then that means it wasnt in the queue
 				to begign with. return null */
+				addokbuf("\nline 174 outProcQ finished");
 				return NULL;
 			}
 		}
