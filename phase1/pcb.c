@@ -87,10 +87,10 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 	addokbuf("\ninsertProcQ finished");
 }
 
-/* 2 cases: the q is empty so return null, or 2, remove first element */
+/* 2 cases: the q is empty so return null, or 2, remove head */
 pcb_PTR removeProcQ (pcb_PTR *tp){
 	addokbuf("\nremoveProcQ started");
-	return outProcQ(tp, *tp); /* case 2 */
+	return outProcQ(tp, (*tp)->next); /* case 2 */
 }
 
 /* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is tail, 3) it's one of more than one and isn't the first, 4) or it's not there */
