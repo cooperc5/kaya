@@ -26,6 +26,19 @@ int emptyProcQ (pcb_PTR tp){
 	return (tp == NULL);
 }
 
+pcb_PTR cleanPcb(pcb_PTR p) {
+	
+	p->p_next = NULL;  /* initialize fields */
+	p->p_prev = NULL;
+	p->p_prnt = NULL;
+	p->p_child = NULL;
+	p->p_sib = NULL;
+	p->p_prevSib = NULL;
+	p->p_semAdd = NULL; 
+	
+	return p;
+}
+
 void freePcb (pcb_PTR p){
 	addokbuf("\nentered and finished? freePcb");
 	pcb_PTR tmp = cleanPcb(p);
@@ -42,19 +55,6 @@ pcb_PTR allocPcb (){
 
 	addokbuf("\nfinished allocPcb");
 	return tmp;
-}
-
-pcb_PTR cleanPcb(pcb_PTR p) {
-	
-	p->p_next = NULL;  /* initialize fields */
-	p->p_prev = NULL;
-	p->p_prnt = NULL;
-	p->p_child = NULL;
-	p->p_sib = NULL;
-	p->p_prevSib = NULL;
-	p->p_semAdd = NULL; 
-	
-	return p;
 }
 
 void initPcbs (){
