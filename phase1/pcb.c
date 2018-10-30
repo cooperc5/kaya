@@ -42,7 +42,8 @@ pcb_PTR cleanPcb(pcb_PTR p) {
 void freePcb (pcb_PTR p){
 	addokbuf("\nentered and finished? freePcb");
 	pcb_PTR tmp = cleanPcb(p);
-	insertProcQ((&pcbFree_h), p);
+	p = tmp;
+	insertProcQ(&(pcbFree_h), p);
 }
 
 pcb_PTR allocPcb (){
@@ -51,6 +52,7 @@ pcb_PTR allocPcb (){
 
 	if (tmp != NULL) {
 		tmp = cleanPcb(tmp);
+		addokbuf("\nalloc cleaned");
 	}
 
 	addokbuf("\nfinished allocPcb");
