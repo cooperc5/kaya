@@ -81,8 +81,8 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 	else { /* case 2 */
 		p->p_next = (*tp)->p_next; /* set next of p */
 		p->p_prev = (*tp); /* set prev of p */
-		(*tp)->p_next = p; /* set next of previous tail */
 		(*tp)->p_next->p_prev = p; /* set prev of head */
+		(*tp)->p_next = p; /* set next of previous tail */
 	}
 	/* set tail pointer */
 	(*tp) = p;
@@ -98,7 +98,7 @@ pcb_PTR removeProcQ (pcb_PTR *tp){
 	return NULL; /* case 1 */
 }
 
-/* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is tail, 3) it's one of more than one and isn't the first, 4) or it's not there */
+/* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is tail, 3) it's one of more than one and isn't the tail, 4) or it's not there */
 pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 	addokbuf("\nentered outProcQ");
 
