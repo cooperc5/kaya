@@ -249,6 +249,9 @@ void insertChild (pcb_PTR prnt, pcb_PTR p){
 
 pcb_PTR removeChild (pcb_PTR p){
 	addokbuf("\nentered and finished? removeChild");
+	if (emptyChild(p)) {
+		return NULL;
+	}
 	return outChild(p->p_child);
 }
 
