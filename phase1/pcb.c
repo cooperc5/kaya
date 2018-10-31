@@ -118,13 +118,15 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		return NULL;
 	}
 
+	pcb_PTR removedPcb = NULL;
+
 	addokbuf("\nline 96");
 	 /* current is now head pcb of procQ */
 	addokbuf("\nline 98");
 	if ((*tp) == p) { /* tail pcb is p */
 		addokbuf("\nline 100");
 		if (((*tp)->p_next) == (*tp)) { /* case 1: p is only pcb on the procQ tp */
-			pcb_PTR removedPcb = (*tp);
+			removedPcb = (*tp);
 			addokbuf("\nline 102");
 			(*tp) = mkEmptyProcQ; /* set the tp to null to indicate an empty procQ */
 			addokbuf("\noutProcQ finished");
@@ -152,9 +154,9 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		addokbuf("\nline 120");
 		if (current == p) {  /* find right pcb then... */
 			addokbuf("\nline 122");
-			(p->p_prev->p_next) = (p->p_next); /* redo next and prev pointers for nodes adjacent to p */
+			(current->p_next->p_prev) = (p->p_prev);
 			addokbuf("\nline 124");
-			(p->p_next->p_prev) = (p->p_prev);
+			(current->p_prev->p_next) = (p->p_next); /* redo next and prev pointers for nodes adjacent to p */
 			addokbuf("\noutProcQ finished");
 			return p;
 		}		
