@@ -239,6 +239,7 @@ void insertChild (pcb_PTR prnt, pcb_PTR p){
 	prnt->p_child = p; /* set p as new first child of prnt */
 	p->p_sib = firstChild;
 	firstChild->p_prevSib = p; /*adjust original first child's prev ptr */
+	p->p_prevSib = NULL;
 	p->p_prnt = prnt;
 	addokbuf("\nfinished insertChild");
 }
@@ -255,30 +256,30 @@ pcb_PTR outChild (pcb_PTR p){
 		addokbuf("\nfinished outChild case 1");
 		return NULL;
 	}
-	if (p->p_prnt->p_child == NULL) {
+	if (emptyChild(p->p_prnt)) {
 		return NULL;
 	}
 	if (p->p_prnt->p_child == p) { /* if p is the first child, either falls into case 2 or 3 */
 		if (p->p_sib == NULL) { /* case 2 - p is only child */
 			p->p_prnt->p_child = NULL; /* no more children of its parent */
 			addokbuf("\nfinished outChild case 2");
-			return p;
+			return cleanPcb(p);
 		}
 		/* case 3 */
 		p->p_prnt->p_child = p->p_sib; /* next child is now first child */
 		p->p_prnt->p_child->p_prevSib = NULL;
 		addokbuf("\nfinished outChild case 3");
-		return p;
+		return cleanPcb(p);
 	}
 	/* case 4, we know p isn't first child of its parent, so either p is end of child list or it's not */
 	if (p->p_sib == NULL) { /* p is last node on child list */
 		p->p_prevSib->p_sib == NULL;
 		addokbuf("\nfinished outChild case 4a");
-		return p;
+		return cleanPcb(p);
 	}
 	/* still case 4, p is somewhere in the middle of the child list */
 	p->p_prevSib->p_sib = p->p_sib; /* adjust prev and next pointers of p's next and prev, respectively */
 	p->p_sib->p_prevSib = p->p_prevSib;
 	addokbuf("\nfinished outChild case 4b");
-	return p;
+	return cleanPcb(p);
 }
