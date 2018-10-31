@@ -93,6 +93,7 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 pcb_PTR removeProcQ (pcb_PTR *tp){
 	addokbuf("\nremoveProcQ started");
 	if (!emptyProcQ(*tp)) {
+		addokbuf("\nabout to enter outProcQ");
 		return outProcQ(tp, (*tp)->p_next); /* case 2 */
 	}
 	return NULL; /* case 1 */
