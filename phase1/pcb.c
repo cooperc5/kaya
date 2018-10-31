@@ -255,6 +255,9 @@ pcb_PTR outChild (pcb_PTR p){
 		addokbuf("\nfinished outChild case 1");
 		return NULL;
 	}
+	if (p->p_prnt->p_child == NULL) {
+		return NULL;
+	}
 	if (p->p_prnt->p_child == p) { /* if p is the first child, either falls into case 2 or 3 */
 		if (p->p_sib == NULL) { /* case 2 - p is only child */
 			p->p_prnt->p_child = NULL; /* no more children of its parent */
