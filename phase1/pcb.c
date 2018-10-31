@@ -87,7 +87,7 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 		p->p_next = (*tp)->p_next; /* set next of p */
 		p->p_prev = (*tp); /* set prev of p */
 		(*tp)->p_next->p_prev = p; /* set prev of head */
-		(*tp)->p_next-> = p; /* set next of previous tail */
+		(*tp)->p_next = p; /* set next of previous tail */
 	}
 	/* set tail pointer */
 	(*tp) = p;
