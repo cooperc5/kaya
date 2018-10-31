@@ -48,6 +48,11 @@ void freePcb (pcb_PTR p){
 
 pcb_PTR allocPcb (){
 	addokbuf("\nentered allocPcb");
+
+	if (emptyProcQ(pcbFree_h)) {
+		return NULL;
+	}
+
 	pcb_PTR tmp = removeProcQ(&pcbFree_h);
 
 	if (tmp != NULL) {
