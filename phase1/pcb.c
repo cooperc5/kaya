@@ -215,7 +215,7 @@ pcb_PTR headProcQ (pcb_PTR tp){
 		return NULL;
 	}
 	addokbuf("\nheadProcQ finished");
-	return (tp);
+	return (tp->p_next);
 }
 
 int emptyChild (pcb_PTR p){
