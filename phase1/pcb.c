@@ -118,13 +118,12 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		return NULL;
 	}
 
-	addokbuf("\nline 104");
 	addokbuf("\nline 96");
 	 /* current is now head pcb of procQ */
 	addokbuf("\nline 98");
 	if ((*tp) == p) { /* tail pcb is p */
 		addokbuf("\nline 100");
-		if ((*tp)->p_next == (*tp)) { /* case 1: p is only pcb on the procQ tp */
+		if (((*tp)->p_next) == (*tp)) { /* case 1: p is only pcb on the procQ tp */
 			pcb_PTR removedPcb = (*tp);
 			addokbuf("\nline 102");
 			(*tp) = mkEmptyProcQ; /* set the tp to null to indicate an empty procQ */
@@ -133,30 +132,34 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		}
 		/* condition 2 */
 		addokbuf("\nline 108");
-		(*tp)->p_prev->p_next = (*tp)->p_next; /*adjust next pointer for new tail of procQ */
+		((*tp)->p_prev->p_next) = ((*tp)->p_next); /*adjust next pointer for new tail of procQ */
 		addokbuf("\nline 110");
-		(*tp)->p_next->p_prev = (*tp)->p_prev; /* adjust prev pointer for head of procQ */
+		((*tp)->p_next->p_prev) = ((*tp)->p_prev); /* adjust prev pointer for head of procQ */
 		addokbuf("\nline 112");
-		(*tp) = (*tp)->p_prev; /* adjust tp for procQ */
+		(*tp) = ((*tp)->p_prev); /* adjust tp for procQ */
 		addokbuf("\nfinished outProcQ 114");
 		return (*tp);
 	}
 	/* condition 3 */
 	pcb_PTR current = (*tp)->p_next;
 
+	if (current == NULL) {
+		return NULL;
+	}
+
 	addokbuf("\nline 118");
 	while (current != (*tp)) { /*while current != tail pcb, i.e. the first one we checked */
 		addokbuf("\nline 120");
 		if (current == p) {  /* find right pcb then... */
 			addokbuf("\nline 122");
-			p->p_prev->p_next = p->p_next; /* redo next and prev pointers for nodes adjacent to p */
+			(p->p_prev->p_next) = (p->p_next); /* redo next and prev pointers for nodes adjacent to p */
 			addokbuf("\nline 124");
-			p->p_next->p_prev = p->p_prev;
+			(p->p_next->p_prev) = (p->p_prev);
 			addokbuf("\noutProcQ finished");
 			return p;
 		}		
 		addokbuf("\nline 129");
-		current = current->p_next;
+		current = (current->p_next);
 		addokbuf("\nline 131");
 	}
 	/* case 3: target pcb not found in procQ */
