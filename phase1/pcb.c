@@ -230,7 +230,8 @@ void insertChild (pcb_PTR prnt, pcb_PTR p){
 	pcb_PTR firstChild = prnt->p_child;
 
 	if (emptyChild(prnt)) { /* case 1 */
-		prnt->p_child = p; /* set p as child or prnt */
+		prnt->p_child = p; /* set p as child */
+		p->p_prnt = prnt;
 		addokbuf("\nfinished insertChild");
 		return;
 	}
