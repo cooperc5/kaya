@@ -105,66 +105,81 @@ pcb_PTR removeProcQ (pcb_PTR *tp){
 }
 
 /* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is tail, 3) it's one of more than one and isn't the tail, 4) or it's not there */
-pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
-	addokbuf("\nentered outProcQ");
+pcb_PTR outProcQ(pcb_PTR* tp, pcb_PTR p) {
+		/* when removing a pcb_t from a process queue
+		pointed to by pcb_t - there aree three cases to
+		consder. FIRST: the tp points to an empty pcb_t
+		process queue - meaning there is no list to take
+		off. SECOND: , there is only one pcb_t remaining in
+		the list - therefore its tp must be updated.
+		THIRD: the pcb_t is adjectent to 1 or more
+		pcb_t and must be adjusted */
+		if(emptyProcQ(*tp)) {
+			/* there is no process queue. our work here is done */
+			return NULL;
+		} else {
+			pcb_PTR rmvdPcb = NULL;
+			/* the process queue is not empty */
+			if((*tp) == p) {
+				/* here, the pcb_t we are searching for
+				is the tp. From here, there are the following possibilities */
+				if((*tp)->p_next == (*tp)) {
+					/* here, we are seacrhing for the tp and it is
+					the last pcb_t on the list. We therefore adjust to this
+					by making the list queue null and returning our found tp */
+					rmvdPcb = (*tp);
+					/* goodbye */
+					(*tp) = mkEmptyProcQ();
+					/* what we were looking for was the tail pointer - all done! */
+					return rmvdPcb;
+				} else {
+					/* this takes a little more work. we are looking
+					for the tp but there are pcb_t left in the list.
+					adjust the adjacent pcb_t tp accordingly */
+					rmvdPcb = (*tp);
+					/* reallocate pointers */
+					(*tp)->p_next->p_prev = (*tp)->p_next;
+					(*tp)->p_prev->p_next = (*tp)->p_next;
+					/* reasign the tp - someones lucky day */
+					(*tp) = (*tp)->p_prev;
+					return rmvdPcb;
+				}
+			} else {
+				/* since the pcb_t we are looking for is not the tp
+				of the list, we start at the head and work our way down the
+				list intil we find the pcb_t we need. if we cant find it,
+				return null */
+				pcb_PTR currentPcb = (*tp)->p_next;
+				/* keep going until we are back where we started */
+				while(currentPcb != (*tp)) {
+					if(currentPcb == p) {
+						/* a match! we found the pcb_t */
+						if(currentPcb == (*tp)->p_next) {
+							/* in this case, we had to search for the pcb_t
+							but if it is at the head, i.e. the tp next,
+							then simply implement the removeProcQ function to
+							accomplish this task and save some work */
+							return removeProcQ(tp);
+						} else {
+							/* this is perhaps the most taxing case; here,
+							we had to search for the pcb_t, and it wasnt the head.
+							if we find it, we have to do some pointer rearranging */
+							currentPcb->p_next->p_prev = currentPcb->p_prev;
+							currentPcb->p_prev->p_next = currentPcb->p_next;
+							/* jobs all done */
+							return currentPcb;
 
-	if (emptyProcQ(*tp)) {
-		addokbuf("\nline 101");
-		return NULL;
-	}
-
-	if (p == NULL) {
-		addokbuf("\np was null in outProcQ");
-		return NULL;
-	}
-
-	addokbuf("\nline 96");
-	 /* current is now head pcb of procQ */
-	addokbuf("\nline 98");
-	if ((*tp) == p) { /* tail pcb is p */
-		addokbuf("\nline 100");
-		if (((*tp)->p_next) == (*tp)) { /* case 1: p is only pcb on the procQ tp */
-			pcb_PTR removedPcb = (*tp);
-			addokbuf("\nline 102");
-			(*tp) = mkEmptyProcQ; /* set the tp to null to indicate an empty procQ */
-			addokbuf("\noutProcQ finished");
-			return removedPcb;
+						}
+					} else {
+						/* no match. make the current point to the next pcb_t */
+						currentPcb = currentPcb->p_next;
+					}
+				}
+				/* if this loop exits, then that means it wasnt in the queue
+				to begign with. return null */
+				return NULL;
+			}
 		}
-		/* condition 2 */
-		addokbuf("\nline 108");
-		((*tp)->p_prev->p_next) = ((*tp)->p_next); /*adjust next pointer for new tail of procQ */
-		addokbuf("\nline 110");
-		((*tp)->p_next->p_prev) = ((*tp)->p_prev); /* adjust prev pointer for head of procQ */
-		addokbuf("\nline 112");
-		(*tp) = ((*tp)->p_prev); /* adjust tp for procQ */
-		addokbuf("\nfinished outProcQ 114");
-		return (*tp);
-	}
-	/* condition 3 */
-	pcb_PTR current = (*tp)->p_next;
-
-	if (current == NULL) {
-		return NULL;
-	}
-
-	addokbuf("\nline 118");
-	while (current != (*tp)) { /*while current != tail pcb, i.e. the first one we checked */
-		addokbuf("\nline 120");
-		if (current == p) {  /* find right pcb then... */
-			addokbuf("\nline 122");
-			(p->p_prev->p_next) = (p->p_next); /* redo next and prev pointers for nodes adjacent to p */
-			addokbuf("\nline 124");
-			(p->p_next->p_prev) = (p->p_prev);
-			addokbuf("\noutProcQ finished");
-			return p;
-		}		
-		addokbuf("\nline 129");
-		current = (current->p_next);
-		addokbuf("\nline 131");
-	}
-	/* case 3: target pcb not found in procQ */
-	addokbuf("\noutProcQ finished");
-	return NULL;		
 }
 
 pcb_PTR headProcQ (pcb_PTR tp){
