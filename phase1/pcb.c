@@ -238,6 +238,7 @@ void insertChild (pcb_PTR prnt, pcb_PTR p){
 	prnt->p_child = p; /* set p as new first child of prnt */
 	p->p_sib = firstChild;
 	firstChild->p_prevSib = p; /*adjust original first child's prev ptr */
+	p->p_prnt = prnt;
 	addokbuf("\nfinished insertChild");
 }
 
