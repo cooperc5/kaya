@@ -110,9 +110,10 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 	 /* current is now head pcb of procQ */
 	if ((*tp) == p) { /* tail pcb is p */
 		if ((*tp)->p_next == (*tp)) { /* case 1: p is only pcb on the procQ tp */
+			pcb_PTR removedPcb = (*tp);
 			(*tp) = mkEmptyProcQ; /* set the tp to null to indicate an empty procQ */
 			addokbuf("\noutProcQ finished line 114");
-			return (*tp);
+			return removedPcb;
 		}
 		/* condition 2 */
 		(*tp)->p_prev->p_next = (*tp)->p_next; /*adjust next pointer for new tail of procQ */
