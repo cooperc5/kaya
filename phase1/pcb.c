@@ -107,6 +107,12 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		addokbuf("\nline 101");
 		return NULL;
 	}
+
+	if (p == NULL) {
+		addokbuf("\np was null in outProcQ");
+		return NULL;
+	}
+
 	addokbuf("\nline 104");
 	addokbuf("\nline 96");
 	 /* current is now head pcb of procQ */
