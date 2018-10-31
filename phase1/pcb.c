@@ -227,15 +227,18 @@ int emptyChild (pcb_PTR p){
 /* cases: 1) empty child list, 2) non-empty child list */
 void insertChild (pcb_PTR prnt, pcb_PTR p){
 	addokbuf("\nentered insertChild");
-	pcb_PTR firstChild = prnt->p_child;
 
 	if (emptyChild(prnt)) { /* case 1 */
 		prnt->p_child = p; /* set p as child */
 		p->p_prnt = prnt;
+		p->p_prevSib = NULL;
+		p->p_sib = NULL;
 		addokbuf("\nfinished insertChild");
 		return;
 	}
 	/*case 2*/
+	pcb_PTR firstChild = prnt->p_child;
+
 	prnt->p_child = p; /* set p as new first child of prnt */
 	p->p_sib = firstChild;
 	firstChild->p_prevSib = p; /*adjust original first child's prev ptr */
