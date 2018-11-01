@@ -218,6 +218,15 @@ pcb_PTR headProcQ (pcb_PTR tp){
 	return (tp->p_next);
 }
 
+pcb_PTR cleanChild(pcb_PTR p) {
+	p->p_sib = NULL;
+	p->p_prevSib = NULL;
+	p->p_child = NULL;
+	p->p_prnt = NULL;
+
+	return p;
+}
+
 int emptyChild (pcb_PTR p){
 	addokbuf("\nentered and finished? emptyChild");
 	return (p->p_child == NULL);
@@ -227,6 +236,8 @@ int emptyChild (pcb_PTR p){
 /* cases: 1) empty child list, 2) non-empty child list */
 void insertChild (pcb_PTR prnt, pcb_PTR p){
 	addokbuf("\nentered insertChild");
+
+	p=cleanChild(p);
 
 	if (emptyChild(prnt)) { /* case 1 */
 		prnt->p_child = p; /* set p as child */
@@ -247,13 +258,25 @@ void insertChild (pcb_PTR prnt, pcb_PTR p){
 	addokbuf("\nfinished insertChild");
 }
 
+
 pcb_PTR removeChild (pcb_PTR p){
 	addokbuf("\nentered and finished? removeChild");
 	if (emptyChild(p)) {
 		return NULL;
 	}
-	return outChild(p->p_child);
+	pcb_PTR firstChild = p->p_child;
+	if (firstChild == p) {
+		if (firstChild->p_sib == NULL) { /* if p is only child */
+			p->p->child = NULL;
+			return cleanChild(firstChild);
+		}
+		/* not only child */
+		firstChild->p_sib->p_prev = NULL;
+		p->p_child = firstChild->p_sib;
+		return cleanChild(firstChild);
+	}
 }
+
 
 /* five conditions to account for: 1) p has no parent, 2) p is only child of its parent, 3) more than one pcb in child list and target p is first one, 4) it's one of more than one and isn't the first */
 pcb_PTR outChild (pcb_PTR p){ 
@@ -269,23 +292,25 @@ pcb_PTR outChild (pcb_PTR p){
 		if (p->p_sib == NULL) { /* case 2 - p is only child */
 			p->p_prnt->p_child = NULL; /* no more children of its parent */
 			addokbuf("\nfinished outChild case 2");
-			return cleanPcb(&(*(p)));
+			return removeChild(p->p_prnt);
 		}
 		/* case 3 */
 		p->p_prnt->p_child = p->p_sib; /* next child is now first child */
 		p->p_prnt->p_child->p_prevSib = NULL;
 		addokbuf("\nfinished outChild case 3");
-		return cleanPcb(&(*(p)));
+		return removeChild(p->p_prnt);
 	}
 	/* case 4, we know p isn't first child of its parent, so either p is end of child list or it's not */
 	if (p->p_sib == NULL) { /* p is last node on child list */
 		p->p_prevSib->p_sib == NULL;
 		addokbuf("\nfinished outChild case 4a");
-		return cleanPcb(&(*(p)));
+		return cleanChild(p);
 	}
 	/* still case 4, p is somewhere in the middle of the child list */
 	p->p_prevSib->p_sib = p->p_sib; /* adjust prev and next pointers of p's next and prev, respectively */
 	p->p_sib->p_prevSib = p->p_prevSib;
 	addokbuf("\nfinished outChild case 4b");
-	return cleanPcb(&(*(p)));
+	return cleanChild(p);
 }
+
+
