@@ -267,7 +267,7 @@ pcb_PTR removeChild (pcb_PTR p){
 	pcb_PTR firstChild = p->p_child;
 	if (firstChild == p) {
 		if (firstChild->p_sib == NULL) { /* if p is only child */
-			p->p->child = NULL;
+			p->p_child = NULL;
 			return cleanChild(firstChild);
 		}
 		/* not only child */
