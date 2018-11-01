@@ -221,7 +221,6 @@ pcb_PTR headProcQ (pcb_PTR tp){
 pcb_PTR cleanChild(pcb_PTR p) {
 	p->p_sib = NULL;
 	p->p_prevSib = NULL;
-	p->p_child = NULL;
 	p->p_prnt = NULL;
 
 	return p;
