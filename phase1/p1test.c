@@ -131,7 +131,27 @@ void main() {
 
 	/* Check allocProc */
 	for (i = 0; i < MAXPROC; i++) {
-		adderrbuf("Check allocProc["+i+"]   \n");
+		if (i=0) addokbuf("\nstarted alloc 1");
+		if (i=0) addokbuf("\nstarted alloc 2");
+		if (i=0) addokbuf("\nstarted alloc 3");
+		if (i=0) addokbuf("\nstarted alloc 4");
+		if (i=0) addokbuf("\nstarted alloc 5");
+		if (i=0) addokbuf("\nstarted alloc 6");
+		if (i=0) addokbuf("\nstarted alloc 7");
+		if (i=0) addokbuf("\nstarted alloc 8");
+		if (i=0) addokbuf("\nstarted alloc 9");
+		if (i=0) addokbuf("\nstarted alloc 10");
+		if (i=0) addokbuf("\nstarted alloc 11");
+		if (i=0) addokbuf("\nstarted alloc 12");
+		if (i=0) addokbuf("\nstarted alloc 13");
+		if (i=0) addokbuf("\nstarted alloc 14");
+		if (i=0) addokbuf("\nstarted alloc 15");
+		if (i=0) addokbuf("\nstarted alloc 16");
+		if (i=0) addokbuf("\nstarted alloc 17");
+		if (i=0) addokbuf("\nstarted alloc 18");
+		if (i=0) addokbuf("\nstarted alloc 19");
+		if (i=0) addokbuf("\nstarted alloc 20");
+		adderrbuf("Check allocProc   \n");
 		if ((procp[i] = allocPcb()) == NULL)
 			adderrbuf("allocPcb: unexpected NULL   ");
 	}
