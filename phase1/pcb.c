@@ -96,77 +96,54 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 
 /* 2 cases: the q is empty so return null, or 2, remove head */
 
-
-/* four conditions to account for: 1) p is only pcb in procQ, 2) more than one pcb in procQ and target pcb is tail, 3) it's one of more than one and isn't the tail, 4) or it's not there */
+/* new outProcQ */
 pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
-	addokbuf("\nentered outProcQ");
-
 	if (emptyProcQ(*tp)) {
-		addokbuf("\nline 101");
 		return NULL;
 	}
 
-	/*if (p == NULL) {
-		addokbuf("\np was null in outProcQ");
-		return NULL;
-	}*/
-
-	pcb_PTR removedPcb = NULL;
-
-	addokbuf("\nline 96");
-	 /* current is now head pcb of procQ */
-	addokbuf("\nline 98");
-	if ((*tp) == p) { /* tail pcb is p */
-		addokbuf("\nline 100");
-		if (((*tp)->p_next) == (*tp)) { /* case 1: p is only pcb on the procQ tp */
-			removedPcb = (*tp);
-			addokbuf("\nline 102");
-			(*tp) = mkEmptyProcQ; /* set the tp to null to indicate an empty procQ */
-			addokbuf("\noutProcQ finished");
-			return removedPcb;
-		}
-		/* condition 2 */
-		addokbuf("\nline 108");
-		((*tp)->p_prev->p_next) = ((*tp)->p_next); /*adjust next pointer for new tail of procQ */
-		addokbuf("\nline 110");
-		((*tp)->p_next->p_prev) = ((*tp)->p_prev); /* adjust prev pointer for head of procQ, shouldnt this be set equal to p->next not prev???? */ 
-		addokbuf("\nline 112");
-		(*tp) = ((*tp)->p_prev); /* adjust tp for procQ */
-		addokbuf("\nfinished outProcQ 114");
+	if ((*tp)->p_next == p) { /* head is p */
+		removeProcQ(tp);
+	}
+	/* previous if covers the cases of p being only pcb in q and if it's the head of a q with more than 1 in the q */
+	if ((*tp) == p) { /* p is tail but there are more in q */
+		p->p_prev->p_next = p->p_next;
+		p->p_next->p_prev = p->p_prev;
+		(*tp) = p_prev;
 		return p;
 	}
-	/* condition 3 */
-	pcb_PTR current = ((*tp)->p_next);
+	/* look for p; we know it's not tail or head and don't know if it's in the list */
+	pcb_PTR tail = (*tp);
+	pcb_PTR current = (*tp)->p_next;
 
-	addokbuf("\nline 118");
-	while (current != (*tp)) { /*while current != tail pcb, i.e. the first one we checked */
-		addokbuf("\nline 120");
-		if (current == p) {  /* find right pcb then... */
-			addokbuf("\nline 122");
-			(current->p_next->p_prev) = (p->p_prev);
-			addokbuf("\nline 124");
-			(current->p_prev->p_next) = (p->p_next); /* redo next and prev pointers for nodes adjacent to p */
-			addokbuf("\noutProcQ finished");
+	while (current != tail) {
+		current = current->p_next;
+		if (current == p) {
+			p->p_prev->p_next = p->p_next;
+			p->p_next->p_prev = p->p_prev;
 			return p;
-		}		
-		addokbuf("\nline 129");
-		current = (current->p_next);
-		addokbuf("\nline 131");
+		}
 	}
-	/* case 3: target pcb not found in procQ */
-	addokbuf("\noutProcQ finished");
-	return NULL;		
+
+	return NULL;
 }
 
-/* either emptyQ or not */
 pcb_PTR removeProcQ (pcb_PTR *tp){
-	addokbuf("\nremoveProcQ started");
-	if (!emptyProcQ(*tp)) {
-		addokbuf("\nabout to enter outProcQ");
-		return outProcQ(tp, (*tp)->p_next); /* case 2 */
+	/* is head only pcb in q or are there others */
+	if ((*tp)->p_next == (*tp)) { /* head/tail is only one in q */
+		pcb_PTR removedPcb = (*tp);
+		(*tp) = mkEmptyProcQ();
+		return removedPcb;
 	}
-	return NULL; /* case 1 */
+	/* head isn't only pcb in q */
+	pcb_PTR head = (*tp)->p_next;
+	head->p_prev->p_next = head->p_next;
+	head->p_next->p_prev = head->p_prev;
+	return head;
 }
+
+
+
 
 pcb_PTR headProcQ (pcb_PTR tp){
 	addokbuf("\nentered headProcQ");
