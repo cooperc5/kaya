@@ -27,7 +27,6 @@ int emptyProcQ (pcb_PTR tp){
 }
 
 pcb_PTR cleanPcb(pcb_PTR p) {
-	
 	p->p_next = NULL;  /* initialize fields */
 	p->p_prev = NULL;
 	p->p_prnt = NULL;
@@ -35,14 +34,11 @@ pcb_PTR cleanPcb(pcb_PTR p) {
 	p->p_sib = NULL;
 	p->p_prevSib = NULL;
 	p->p_semAdd = NULL; 
-	
-	return p;
 }
 
 void freePcb (pcb_PTR p){
 	addokbuf("\nentered and finished? freePcb");
-	pcb_PTR tmp = cleanPcb(p);
-	p = tmp;
+	cleanPcb(p);
 	insertProcQ(&(pcbFree_h), p);
 }
 
@@ -98,12 +94,15 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 
 /* new outProcQ */
 pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
+	addokbuf("\nentered outProcQ");
 	if (emptyProcQ(*tp)) {
+		addokbuf("\nline 99");
 		return NULL;
 	}
 
 	if ((*tp)->p_next == p) { /* head is p */
-		removeProcQ(tp);
+		addokbuf("\nline 104");
+		return removeProcQ(tp);
 	}
 	/* previous if covers the cases of p being only pcb in q and if it's the head of a q with more than 1 in the q */
 	if ((*tp) == p) { /* p is tail but there are more in q */
@@ -113,10 +112,9 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		return p;
 	}
 	/* look for p; we know it's not tail or head and don't know if it's in the list */
-	pcb_PTR tail = (*tp);
 	pcb_PTR current = (*tp)->p_next;
 
-	while (current != tail) {
+	while (current != (*tp)) {
 		current = current->p_next;
 		if (current == p) {
 			current->p_prev->p_next = current->p_next;
@@ -130,16 +128,20 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 
 pcb_PTR removeProcQ (pcb_PTR *tp){
 	if (emptyProcQ(*tp)) {
+		addokbuf("\nline 132");
 		return NULL;
 	}
 
 	/* is head only pcb in q or are there others */
+	addokbuf("\nline 137");
 	if ((*tp)->p_next == (*tp)) { /* head/tail is only one in q */
+		addokbuf("\nline 139");
 		pcb_PTR removedPcb = (*tp);
 		(*tp) = mkEmptyProcQ();
 		return removedPcb;
 	}
 	/* head isn't only pcb in q */
+	addokbuf("\nline 99");
 	pcb_PTR head = (*tp)->p_next;
 	head->p_prev->p_next = head->p_next;
 	head->p_next->p_prev = head->p_prev;
