@@ -106,10 +106,10 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		return NULL;
 	}
 
-	if (p == NULL) {
+	/*if (p == NULL) {
 		addokbuf("\np was null in outProcQ");
 		return NULL;
-	}
+	}*/
 
 	pcb_PTR removedPcb = NULL;
 
