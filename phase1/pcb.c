@@ -119,9 +119,9 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 	while (current != tail) {
 		current = current->p_next;
 		if (current == p) {
-			p->p_prev->p_next = p->p_next;
-			p->p_next->p_prev = p->p_prev;
-			return p;
+			current->p_prev->p_next = current->p_next;
+			current->p_next->p_prev = current->p_prev;
+			return current;
 		}
 	}
 
