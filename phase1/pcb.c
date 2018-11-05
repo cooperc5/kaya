@@ -26,7 +26,7 @@ int emptyProcQ (pcb_PTR tp){
 	return (tp == NULL);
 }
 
-pcb_PTR cleanPcb(pcb_PTR p) {
+void cleanPcb(pcb_PTR p) {
 	p->p_next = NULL;  /* initialize fields */
 	p->p_prev = NULL;
 	p->p_prnt = NULL;
@@ -52,7 +52,7 @@ pcb_PTR allocPcb (){
 	pcb_PTR tmp = removeProcQ(&pcbFree_h);
 
 	if (tmp != NULL) {
-		tmp = cleanPcb(tmp);
+		cleanPcb(tmp);
 		addokbuf("\nalloc cleaned");
 	}
 
@@ -141,7 +141,7 @@ pcb_PTR removeProcQ (pcb_PTR *tp){
 		return removedPcb;
 	}
 	/* head isn't only pcb in q */
-	addokbuf("\nline 99");
+	addokbuf("\nline 144");
 	pcb_PTR head = (*tp)->p_next;
 	head->p_prev->p_next = head->p_next;
 	head->p_next->p_prev = head->p_prev;
