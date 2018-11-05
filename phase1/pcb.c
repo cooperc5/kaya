@@ -127,21 +127,16 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		}
 		/* condition 2 */
 		addokbuf("\nline 108");
-		removedPcb = (*tp);
 		((*tp)->p_prev->p_next) = ((*tp)->p_next); /*adjust next pointer for new tail of procQ */
 		addokbuf("\nline 110");
 		((*tp)->p_next->p_prev) = ((*tp)->p_prev); /* adjust prev pointer for head of procQ, shouldnt this be set equal to p->next not prev???? */ 
 		addokbuf("\nline 112");
 		(*tp) = ((*tp)->p_prev); /* adjust tp for procQ */
 		addokbuf("\nfinished outProcQ 114");
-		return removedPcb;
+		return p;
 	}
 	/* condition 3 */
-	pcb_PTR current = (*tp)->p_next;
-
-	if (current == NULL) {
-		return NULL;
-	}
+	pcb_PTR current = (*tp->p_next);
 
 	addokbuf("\nline 118");
 	while (current != (*tp)) { /*while current != tail pcb, i.e. the first one we checked */
