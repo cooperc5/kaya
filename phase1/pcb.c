@@ -129,6 +129,10 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 }
 
 pcb_PTR removeProcQ (pcb_PTR *tp){
+	if (emptyProcQ(*tp)) {
+		return NULL;
+	}
+
 	/* is head only pcb in q or are there others */
 	if ((*tp)->p_next == (*tp)) { /* head/tail is only one in q */
 		pcb_PTR removedPcb = (*tp);
