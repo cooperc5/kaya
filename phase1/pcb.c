@@ -136,7 +136,7 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 		return p;
 	}
 	/* condition 3 */
-	pcb_PTR current = (*tp->p_next);
+	pcb_PTR current = ((*tp)->p_next);
 
 	addokbuf("\nline 118");
 	while (current != (*tp)) { /*while current != tail pcb, i.e. the first one we checked */
