@@ -195,8 +195,12 @@ void main() {
                 adderrbuf("headProcQ failed   ");
         q = outProcQ(&qa, firstproc);
         if (q == NULL || q != firstproc)
-        		if (q==NULL) {addokbuf("q=NULL")}
-        			if (q==NULL) {addokbuf("q!=firstproc")}
+        		if (q==NULL) 
+        			{addokbuf("q=NULL");
+        	}
+        			if (q==NULL) 
+        				{addokbuf("q!=firstproc");
+        		}
                 adderrbuf("outProcQ failed on first entry   ");
         freePcb(q);
         q = outProcQ(&qa, midproc);
