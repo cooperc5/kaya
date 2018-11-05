@@ -131,7 +131,7 @@ void main() {
 
         /* Check allocProc */
         for (i = 0; i < MAXPROC; i++) {
-        	/*if (i==0) addokbuf("\nstarted alloc 1");
+        	if (i==0) addokbuf("\nstarted alloc 1");
 		if (i==1) addokbuf("\nstarted alloc 2");
 		if (i==2) addokbuf("\nstarted alloc 3");
 		if (i==3) addokbuf("\nstarted alloc 4");
@@ -150,7 +150,7 @@ void main() {
 		if (i==16) addokbuf("\nstarted alloc 17");
 		if (i==17) addokbuf("\nstarted alloc 18");
 		if (i==18) addokbuf("\nstarted alloc 19");
-		if (i==19) addokbuf("\nstarted alloc 20");*/
+		if (i==19) addokbuf("\nstarted alloc 20");
                 if ((procp[i] = allocPcb()) == NULL)
                         adderrbuf("allocPcb: unexpected NULL   ");
         }
