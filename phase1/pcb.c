@@ -109,7 +109,7 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 	if ((*tp) == p) { /* p is tail but there are more in q */
 		p->p_prev->p_next = p->p_next;
 		p->p_next->p_prev = p->p_prev;
-		(*tp) = p_prev;
+		(*tp) = p->p_prev;
 		return p;
 	}
 	/* look for p; we know it's not tail or head and don't know if it's in the list */
