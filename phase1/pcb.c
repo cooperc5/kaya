@@ -213,7 +213,6 @@ pcb_PTR removeChild (pcb_PTR p){
 		return cleanChild(removedChild); 
 	}
 
-	pcb_PTR removedChild = p->p_child;
 	removedChild->p_sib->p_prevSib = NULL;
 	p->p_child = removedChild->p_sib;
 
