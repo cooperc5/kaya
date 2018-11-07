@@ -202,18 +202,21 @@ void insertChild (pcb_PTR prnt, pcb_PTR p){
 
 
 pcb_PTR removeChild (pcb_PTR p){
-	addokbuf("\nentered and finished? removeChild");
+	addokbuf("\nentered removeChild");
 	if (emptyChild(p)) {
+		addokbuf("\nremoveChild emptyChild true");
 		return NULL;
 	}
 	pcb_PTR firstChild = p->p_child;
 	if (firstChild->p_sib == NULL) { /* if p is only child */
 		p->p_child = NULL;
+		addokbuf("\nremoveChild line 213 finished");
 		return cleanChild(firstChild);
 	}
 	/* not only child */
-	firstChild->p_sib->p_prev = NULL;
+	firstChaddokbuf("\nremoveChild line 213");ild->p_sib->p_prev = NULL;
 	p->p_child = firstChild->p_sib;
+	addokbuf("\nremoveChild line 219 finished");
 	return cleanChild(firstChild);
 }
 
@@ -225,10 +228,12 @@ pcb_PTR outChild (pcb_PTR p){
 		addokbuf("\nfinished outChild case 1");
 		return NULL;
 	}
-	if (emptyChild(p->p_prnt)) {
+	/*if (emptyChild(p->p_prnt)) {
+		addokbuf("\noutChild emptyChild true (case 2)");
 		return NULL;
-	}
+	}*/
 	if (p->p_prnt->p_child == p) { /* if p is the first child, either falls into case 2 or 3 */
+		addokbuf("\noutChild line 236 finished");
 		return removeChild(p->p_prnt);
 	}
 	/* case 4, we know p isn't first child of its parent, so either p is end of child list or it's not */
