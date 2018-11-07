@@ -177,76 +177,79 @@ int emptyChild (pcb_PTR p){
 /* assumption: it's fine to insert new child at the head of the child list and it's fine to have child lists singly linked */
 /* cases: 1) empty child list, 2) non-empty child list */
 void insertChild (pcb_PTR prnt, pcb_PTR p){
-	addokbuf("\nentered insertChild");
+	
+	if (emptyChild(prnt)) {
+		prnt->p_child = p;
 
-	p=cleanChild(p);
-
-	if (emptyChild(prnt)) { /* case 1 */
-		prnt->p_child = p; /* set p as child */
 		p->p_prnt = prnt;
-		p->p_prevSib = NULL;
 		p->p_sib = NULL;
-		addokbuf("\nfinished insertChild");
+		p->p_prevSib = NULL;
+
 		return;
 	}
-	/*case 2*/
+
 	pcb_PTR firstChild = prnt->p_child;
 
-	prnt->p_child = p; /* set p as new first child of prnt */
 	p->p_sib = firstChild;
-	firstChild->p_prevSib = p; /*adjust original first child's prev ptr */
 	p->p_prevSib = NULL;
-	p->p_prnt = prnt;
-	addokbuf("\nfinished insertChild");
+
+	firstChild->p_prevSib = p;
+
+	prnt->p_child = p;
 }
 
 
 pcb_PTR removeChild (pcb_PTR p){
-	addokbuf("\nentered removeChild");
+	
 	if (emptyChild(p)) {
-		addokbuf("\nremoveChild emptyChild true");
 		return NULL;
 	}
-	pcb_PTR firstChild = p->p_child;
-	if (firstChild->p_sib == NULL) { /* if p is only child */
+
+	pcb_PTR removedChild = p->p_child;
+
+	if (removedChild->p_sib == NULL) {
 		p->p_child = NULL;
-		addokbuf("\nremoveChild line 213 finished");
-		return cleanChild(firstChild);
+
+		return cleanChild(removedChild); 
 	}
-	/* not only child */
-	addokbuf("\nremoveChild line 217");
-	firstChild->p_sib->p_prev = NULL;
-	p->p_child = firstChild->p_sib;
-	addokbuf("\nremoveChild line 220 finished");
-	return cleanChild(firstChild);
+
+	pcb_PTR removedChild = p->p_child;
+	removedChild->p_sib->p_prevSib = NULL;
+	p->p_child = removedChild->p_sib;
+
+	return cleanChild(removedChild); 
 }
 
 
 /* five conditions to account for: 1) p has no parent, 2) p is only child of its parent, 3) more than one pcb in child list and target p is first one, 4) it's one of more than one and isn't the first */
 pcb_PTR outChild (pcb_PTR p){ 
-	addokbuf("\nentered outChild");
-	if (p->p_prnt == NULL) { /* case 1 */
-		addokbuf("\nfinished outChild case 1");
+	if (p == NULL) {
 		return NULL;
 	}
-	/*if (emptyChild(p->p_prnt)) {
-		addokbuf("\noutChild emptyChild true (case 2)");
+
+	if (p->p_prnt == NULL) {
 		return NULL;
-	}*/
-	if (p->p_prnt->p_child == p) { /* if p is the first child, either falls into case 2 or 3 */
-		addokbuf("\noutChild line 236 finished");
+	}
+
+	pcb_PTR firstChild = p->p_prnt->p_child;
+
+	if (firstChild == p) {
 		return removeChild(p->p_prnt);
 	}
-	/* case 4, we know p isn't first child of its parent, so either p is end of child list or it's not */
-	if (p->p_sib == NULL) { /* p is last node on child list */
-		p->p_prevSib->p_sib == NULL;
-		addokbuf("\nfinished outChild case 4a");
+
+	if (firstChild->p_sib == NULL) { /*shouldn't be able to get this to be true */
+		addokbuf("\n shouldn't be able to get here line 241");
+		return NULL;
+	}
+	/* p is not the start of the child list */
+	if (p->p_sib == NULL) { /* is p at the end of the child list */
+		p->p_prevSib->p_sib = NULL;
 		return cleanChild(p);
 	}
-	/* still case 4, p is somewhere in the middle of the child list */
-	p->p_prevSib->p_sib = p->p_sib; /* adjust prev and next pointers of p's next and prev, respectively */
+	/* p should be somewhere in middle of child list */
+	p->p_prevSib->p_sib = p->p_sib;
 	p->p_sib->p_prevSib = p->p_prevSib;
-	addokbuf("\nfinished outChild case 4b");
+
 	return cleanChild(p);
 }
 
