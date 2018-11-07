@@ -214,9 +214,10 @@ pcb_PTR removeChild (pcb_PTR p){
 		return cleanChild(firstChild);
 	}
 	/* not only child */
-	firstChaddokbuf("\nremoveChild line 213");ild->p_sib->p_prev = NULL;
+	addokbuf("\nremoveChild line 217");
+	firstChild->p_sib->p_prev = NULL;
 	p->p_child = firstChild->p_sib;
-	addokbuf("\nremoveChild line 219 finished");
+	addokbuf("\nremoveChild line 220 finished");
 	return cleanChild(firstChild);
 }
 
