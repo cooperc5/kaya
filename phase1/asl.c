@@ -17,7 +17,7 @@ semd_PTR mkEmptySemd() {
 }
 
 /* search semd list method */
-semd_PTR searchASL(int *semAdd) {
+static semd_PTR searchASL(int *semAdd) {
 	addokbuf("entered searchASL\n");
 	if(semAdd == NULL) {
 		addokbuf("searchASL line 23\n");
@@ -46,6 +46,8 @@ static semd_PTR allocSemd(int *semAdd) {
 	/* is the semd to be allocated the only one in the list? */
 	if (semdFree->s_next == NULL) {
 		semdFree = NULL;
+		cleanSemd(allocated);
+		allocated->s_semAdd = semAdd;
 		return allocated;
 	} 
 	semdFree = semdFree->s_next;
@@ -57,7 +59,7 @@ static semd_PTR allocSemd(int *semAdd) {
 	return allocated;
 }
 
-void cleanSemd(semd_PTR s) {
+static void cleanSemd(semd_PTR s) {
 	addokbuf("entered cleanSemd");
 	/* clean the semd */
 	s->s_next = NULL;
