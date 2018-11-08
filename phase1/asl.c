@@ -94,6 +94,7 @@ int insertBlocked (int *semAdd, pcb_PTR p) {
 	if (semdFree == NULL) {
 		return TRUE
 	}
+	semd_PTR newNode = allocSemd(semAdd);
 	newNode->s_next = target->s_next;
 	target->s_next = newNode;
 	insertProcQ(&(newNode->s_procQ), p);
