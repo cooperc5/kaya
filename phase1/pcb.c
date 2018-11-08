@@ -192,6 +192,7 @@ void insertChild (pcb_PTR prnt, pcb_PTR p){
 
 	p->p_sib = firstChild;
 	p->p_prevSib = NULL;
+	p->p_prnt = prnt;
 
 	firstChild->p_prevSib = p;
 
