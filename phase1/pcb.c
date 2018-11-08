@@ -229,10 +229,12 @@ pcb_PTR outChild (pcb_PTR p){
 	if (p->p_prnt == NULL) {
 		return NULL;
 	}
+	addokbuf("\np has a parent line 232");
 
 	pcb_PTR firstChild = p->p_prnt->p_child;
 
 	if (firstChild == p) {
+		addokbuf("\nfirst child is p line 237");
 		return removeChild(p->p_prnt);
 	}
 
@@ -242,13 +244,14 @@ pcb_PTR outChild (pcb_PTR p){
 	}
 	/* p is not the start of the child list */
 	if (p->p_sib == NULL) { /* is p at the end of the child list */
+		addokbuf("\np is last child line 247");
 		p->p_prevSib->p_sib = NULL;
 		return cleanChild(p);
 	}
 	/* p should be somewhere in middle of child list */
 	p->p_prevSib->p_sib = p->p_sib;
 	p->p_sib->p_prevSib = p->p_prevSib;
-
+	addokbuf("\np is a middle child line 254");
 	return cleanChild(p);
 }
 
