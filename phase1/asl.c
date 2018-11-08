@@ -17,13 +17,15 @@ semd_PTR mkEmptySemd() {
 }
 
 /* search semd list method */
-static semd_PTR searchASL(int *semAdd) {
+semd_PTR searchASL(int *semAdd) {
 	addokbuf("entered searchASL");
 	/* get past head dummy node */
 	semd_PTR current = semdFree;
-	
+	addokbuf("searchASL line 24\n");
 	while (current->s_next->s_semAdd < semAdd) { /* next asl node is not equal to or higher than target semAdd */
+		addokbuf("searchASL line 26\n");
 		current = current->s_next; /* advance to next asl node */
+		addokbuf("searchASL line 28\n");
 	}
 	addokbuf("finished searchASL");
 	return current; /* returns node just before where the target semAdd is or should be */
