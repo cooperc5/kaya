@@ -82,17 +82,22 @@ static void freeSemd(semd_PTR s) {
 }
 
 int insertBlocked (int *semAdd, pcb_PTR p) {
-	addokbuf("entered insertBlocked");
-	semd_PTR target = searchASL(semAdd);	
+	addokbuf("entered insertBlocked\n");
+	semd_PTR target = searchASL(semAdd);
+	if (target->s_next->s_semAdd == semAdd) {
+		addokbuf("insertBlocked line 88 semAdd already found on ASL, inserting p\n");
+		insertProcQ(&(target->s_next->s_procQ), p);
+		return 0;
+	}	
 	semd_PTR newNode = allocSemd(semAdd);
 	if (newNode == NULL) {
-		addokbuf("finished insertBlocked");
+		addokbuf("finished insertBlocked line 94\n");
 		return 1;
 	}
 	newNode->s_next = target->s_next;
 	target->s_next = newNode;
 	insertProcQ(&(newNode->s_procQ), p);
-	addokbuf("finished insertBlocked");
+	addokbuf("finished insertBlocked line 100\n");
 	return 0;
 }
 
