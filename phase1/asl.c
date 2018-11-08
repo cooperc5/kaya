@@ -18,8 +18,9 @@ semd_PTR mkEmptySemd() {
 
 /* search semd list method */
 semd_PTR searchASL(int *semAdd) {
-	addokbuf("entered searchASL");
+	addokbuf("entered searchASL\n");
 	if(semAdd == NULL) {
+		addokbuf("searchASL line 23\n");
 		semAdd = (int*) MAXINT;
 	}
 	semd_PTR current = semdFree;
