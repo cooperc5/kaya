@@ -64,6 +64,7 @@ static void cleanSemd(semd_PTR s) {
 	/* clean the semd */
 	s->s_next = NULL;
 	s->s_procQ = mkEmptyProcQ();
+	s->s_semAdd = NULL;
 	addokbuf("finished cleanSemd");
 }
 
