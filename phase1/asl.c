@@ -89,18 +89,16 @@ int insertBlocked (int *semAdd, pcb_PTR p) {
 	if (target->s_next->s_semAdd == semAdd) {
 		addokbuf("insertBlocked line 88 semAdd already found on ASL, inserting p\n");
 		insertProcQ(&(target->s_next->s_procQ), p);
-		return 0;
-	}	
-	semd_PTR newNode = allocSemd(semAdd);
-	if (newNode == NULL) {
-		addokbuf("finished insertBlocked line 94\n");
-		return 1;
+		return FALSE;
+	}
+	if (semdFree == NULL) {
+		return TRUE
 	}
 	newNode->s_next = target->s_next;
 	target->s_next = newNode;
 	insertProcQ(&(newNode->s_procQ), p);
 	addokbuf("finished insertBlocked line 100\n");
-	return 0;
+	return FALSE;
 }
 
 pcb_PTR removeBlocked (int *semAdd){
