@@ -47,13 +47,12 @@ static semd_PTR allocSemd(int *semAdd) {
 	return allocated;
 }
 
-static semd_PTR cleanSemd(semd_PTR s) {
+void cleanSemd(semd_PTR s) {
 	addokbuf("entered cleanSemd");
 	/* clean the semd */
 	s->s_next = NULL;
 	s->s_procQ = mkEmptyProcQ();
 	addokbuf("finished cleanSemd");
-	return s;
 }
 
 /* free semd method */
@@ -135,25 +134,36 @@ pcb_PTR headBlocked (int *semAdd){
 }
 
 void initASL () {
-	addokbuf("entered initASL");
+	addokbuf("entered initASL\n");
 	semdASL = mkEmptySemd();
+	addokbuf("initASL line 139\n");
 	semdFree = mkEmptySemd();
+	addokbuf("initASL line 141\n");
 	static semd_t foo[MAXPROC + 2];	/* init semd free list */
+	addokbuf("initASL line 143\n");
 	int i;
 	for (i = 0; i<MAXPROC; i++) {
 		freeSemd(&foo[i]);
+		addokbuf("line after freeSemd in loop in initASL\n");
 	}
-
+	addokbuf("initASL line 149\n");
 	/* init asl */
 	semd_PTR dummy1, dummy2;  /* set up dummy nodes */
+	addokbuf("initASL line 152\n");
 	dummy1 = &(foo[MAXPROC]);
+	addokbuf("initASL line 154\n");
 	dummy2 = &(foo[MAXPROC + 1]);
+	addokbuf("initASL line 156\n");
 	dummy1->s_semAdd = 0;
+	addokbuf("initASL line 158\n");
 	dummy2->s_semAdd = MAXINT;
+	addokbuf("initASL line 160\n");
 	semdASL = dummy1;
+	addokbuf("initASL line 162\n");
 	semdASL->s_next = dummy2;
+	addokbuf("initASL line 164\n");
 	dummy2->s_next = NULL;
-	addokbuf("finished initASL");
+	addokbuf("finished initASL\n");
 }
 
 
