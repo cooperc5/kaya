@@ -156,21 +156,19 @@ void initASL () {
 	}
 	addokbuf("initASL line 149\n");
 	/* init asl */
-	semd_PTR dummy1, dummy2;  /* set up dummy nodes */
+	semdASL = &(foo[MAXPROC]);
 	addokbuf("initASL line 152\n");
-	dummy1 = &(foo[MAXPROC]);
+	smedASL->s_procQ = mkEmptyProcQ();
 	addokbuf("initASL line 154\n");
-	dummy2 = &(foo[MAXPROC + 1]);
+	semdASL->s_semAdd = 0;
 	addokbuf("initASL line 156\n");
-	dummy1->s_semAdd = 0;
+	semdASL->s_next = &(foo[MAXPROC + 1]);
 	addokbuf("initASL line 158\n");
-	dummy2->s_semAdd = MAXINT;
+	semdASL->s_next->s_procQ = mkEmptyProcQ();
 	addokbuf("initASL line 160\n");
-	semdASL = dummy1;
+	semdASL->s_next->s_next = NULL;
 	addokbuf("initASL line 162\n");
-	semdASL->s_next = dummy2;
-	addokbuf("initASL line 164\n");
-	dummy2->s_next = NULL;
+	semdASL->s_next->s_semAdd = MAXINT;
 	addokbuf("finished initASL\n");
 }
 
