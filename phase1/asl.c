@@ -50,9 +50,10 @@ static semd_PTR allocSemd(int *semAdd) {
 	} 
 	semdFree = semdFree->s_next;
 
+	cleanSemd(allocated);
 	allocated->s_semAdd = semAdd;
 	addokbuf("finished allocSemd");
-	cleanSemd(allocated);
+
 	return allocated;
 }
 
