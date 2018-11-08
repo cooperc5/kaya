@@ -23,14 +23,14 @@ semd_PTR searchASL(int *semAdd) {
 		addokbuf("searchASL line 23\n");
 		semAdd = (int*) MAXINT;
 	}
-	semd_PTR current = semdFree;
+	semd_PTR current = semdASL;
 	addokbuf("searchASL line 24\n");
 	while (current->s_next->s_semAdd < semAdd) { /* next asl node is not equal to or higher than target semAdd */
 		addokbuf("searchASL line 26\n");
 		current = current->s_next; /* advance to next asl node */
 		addokbuf("searchASL line 28\n");
 	}
-	addokbuf("finished searchASL");
+	addokbuf("finished searchASL\n");
 	return current; /* returns node just before where the target semAdd is or should be */
 }
 
