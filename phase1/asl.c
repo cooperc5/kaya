@@ -39,7 +39,10 @@ static semd_PTR allocSemd(int *semAdd) {
 	/* free list isn't empty */
 	semd_PTR allocated = semdFree;
 	/* is the semd to be allocated the only one in the list? */
-	if (semdFree) 
+	if (semdFree->s_next == NULL) {
+		semdFree = NULL;
+		return allocated;
+	} 
 	semdFree = semdFree->s_next;
 
 	allocated->s_semAdd = semAdd;
@@ -62,12 +65,12 @@ static void freeSemd(semd_PTR s) {
 
 	/* empty free list case */
 	if (semdFree == NULL) {
-		semdFree->s_next = s;
+		semdFree = s;
 	}
 
 	/* non-empty free list case */
 	semd_PTR head = semdFree;
-	semdFree->s_next = s;
+	semdFree = s;
 	s->s_next = head;
 	addokbuf("finished freeSemd");
 }
