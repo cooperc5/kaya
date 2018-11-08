@@ -159,7 +159,7 @@ void initASL () {
 	/* init asl */
 	semdASL = &(foo[MAXPROC]);
 	addokbuf("initASL line 152\n");
-	smedASL->s_procQ = mkEmptyProcQ();
+	semdASL->s_procQ = mkEmptyProcQ();
 	addokbuf("initASL line 154\n");
 	semdASL->s_semAdd = 0;
 	addokbuf("initASL line 156\n");
