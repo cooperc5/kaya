@@ -96,6 +96,7 @@ int insertBlocked (int *semAdd, pcb_PTR p) {
 	if (target->s_next->s_semAdd == semAdd) {
 		addokbuf("insertBlocked line 94 semAdd already found on ASL, inserting p\n");
 		insertProcQ(&(target->s_next->s_procQ), p);
+		p->p_semAdd = semAdd;
 		return FALSE;
 	}
 
@@ -107,6 +108,7 @@ int insertBlocked (int *semAdd, pcb_PTR p) {
 	insertProcQ(&(newASLNode->s_procQ), p);
 	newASLNode->s_next = target->s_next;
 	target->s_next = newASLNode;
+	p->p_semAdd = semAdd;
 	addokbuf("finished insertBlocked line 107\n");
 	return FALSE;
 }
