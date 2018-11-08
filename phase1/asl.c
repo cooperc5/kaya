@@ -77,6 +77,7 @@ static void freeSemd(semd_PTR s) {
 	if (semdFree == NULL) {
 		semdFree = s;
 		semdFree->s_next = NULL;
+		return;
 	}
 
 	/* non-empty free list case */
