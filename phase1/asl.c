@@ -19,7 +19,9 @@ semd_PTR mkEmptySemd() {
 /* search semd list method */
 semd_PTR searchASL(int *semAdd) {
 	addokbuf("entered searchASL");
-	/* get past head dummy node */
+	if(semAdd == NULL) {
+		semAdd = (int*) MAXINT;
+	}
 	semd_PTR current = semdFree;
 	addokbuf("searchASL line 24\n");
 	while (current->s_next->s_semAdd < semAdd) { /* next asl node is not equal to or higher than target semAdd */
@@ -68,6 +70,7 @@ static void freeSemd(semd_PTR s) {
 	/* empty free list case */
 	if (semdFree == NULL) {
 		semdFree = s;
+		semdFree->s_next = NULL;
 	}
 
 	/* non-empty free list case */
