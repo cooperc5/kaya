@@ -1,3 +1,12 @@
+/*************************************************** asl.c **************************************************************
+	asl.c implements a semaphore list - an important OS concept; here, the asl will be seen as an integer value and
+	will keep addresses of Semaphore Descriptors, henceforth known as semd_t; much like in the pcb.c, the asl will keep an
+	asl free list with MAXPROC free semd_t; this class will encapsulate the functionality needed too perform operations on
+	the semd_t
+	This module contributes function definitions and a few sample fucntion implementations to the contributors put forth by
+	the Kaya OS project
+***************************************************** asl.c ************************************************************/
+
 #ifndef ASL
 #define ASL
 
@@ -12,33 +21,37 @@ static semd_PTR semdFree; /* semd free list head ptr */
 
 
 semd_PTR mkEmptySemd() {
-	addokbuf("entered mkEmptySemd");
 	return NULL;
 }
 
-/* search semd list method */
+/*
+* Function: searches the semd_t asl list for
+* the specified semd_t address passed in as an
+* argument to the function; since there are two
+* dummy semd_t on the list, there are no erronous
+* exit conditions
+*/
 static semd_PTR searchASL(int *semAdd) {
-	addokbuf("entered searchASL\n");
-	if(semAdd == NULL) {
-		addokbuf("searchASL line 23\n");
+	if(semAdd == NULL) { /* if invalid semAdd is passed, set it to MAXINT */
 		semAdd = (int*) MAXINT;
 	}
 	semd_PTR current = semdASL;
-	addokbuf("searchASL line 24\n");
+
 	while (current->s_next->s_semAdd < semAdd) { /* next asl node is not equal to or higher than target semAdd */
-		addokbuf("searchASL line 26\n");
 		current = current->s_next; /* advance to next asl node */
-		addokbuf("searchASL line 28\n");
 	}
-	addokbuf("finished searchASL\n");
+	
 	return current; /* returns node just before where the target semAdd is or should be */
 }
 
-/* alloc semd method */
+/*
+*	Function: allocates a semd_t from the semd_t
+* free list and returns a pointer to it;
+* should the send_t free list head is null,
+* then there are no free semd_t to allocate
+*/
 static semd_PTR allocSemd(int *semAdd) {
-	addokbuf("entered allocSemd");
 	if (semdFree == NULL) { /*is free list empty? */
-		addokbuf("finished allocSemd");
 		return NULL;
 	}
 	/* free list isn't empty */
@@ -50,27 +63,36 @@ static semd_PTR allocSemd(int *semAdd) {
 		allocated->s_semAdd = semAdd;
 		return allocated;
 	} 
+	/* no not only one */
 	semdFree = semdFree->s_next;
 
 	cleanSemd(allocated);
 	allocated->s_semAdd = semAdd;
-	addokbuf("finished allocSemd");
 
 	return allocated;
 }
 
+/*
+* Function: nulls out all of the values of a
+* semd_t so that it is clean and can be ready to
+* used - since a semd_t cannot come off the
+* free list with defined values
+*/
 static void cleanSemd(semd_PTR s) {
-	addokbuf("entered cleanSemd");
 	/* clean the semd */
 	s->s_next = NULL;
 	s->s_procQ = mkEmptyProcQ();
 	s->s_semAdd = NULL;
-	addokbuf("finished cleanSemd");
 }
 
-/* free semd method */
+/*
+* Function: takes a semd_t and points it onto
+* the semd_t free list; if there is nothing on
+* the semd_t free list, a free list is "created"
+* by making the newly added semd_t next semd_t
+* to be null; if its not empty
+*/
 static void freeSemd(semd_PTR s) {
-	addokbuf("entered freeSemd");
 	cleanSemd(s);
 
 	/* empty free list case */
@@ -84,41 +106,56 @@ static void freeSemd(semd_PTR s) {
 	semd_PTR head = semdFree;
 	semdFree = s;
 	s->s_next = head;
-	addokbuf("finished freeSemd");
 }
 
+/*
+* Function: insert the pcb_t provided as an a
+* argument to the tail of that pcb_t process
+* queue at the semd_t address provided; this method
+* can get tricky: if there is no semd_t descriptor,
+* as in, there is it is not active because it is
+* nonexistent in the asl list a new semd_t must initalized,
+* an be allocated to take its place - however, if the
+* free list is blocked - return true; in a successful operation
+* the function returns null
+*/
 int insertBlocked (int *semAdd, pcb_PTR p) {
-	addokbuf("entered insertBlocked\n");
 	if (p == NULL) {
 		return TRUE;
 	}
 
 	semd_PTR target = searchASL(semAdd);
-	if (target->s_next->s_semAdd == semAdd) {
-		addokbuf("insertBlocked line 94 semAdd already found on ASL, inserting p\n");
-		insertProcQ(&(target->s_next->s_procQ), p);
+	if (target->s_next->s_semAdd == semAdd) { /* is semAdd already present? */
+		insertProcQ(&(target->s_next->s_procQ), p); /* yes */
 		p->p_semAdd = semAdd;
 		return FALSE;
-	}
-
+	} /* no */
+	/* is there a node available on the free list? */
 	if (semdFree == NULL) {
-		addokbuf("finished insertBlocked line 100\n");
 		return TRUE;
 	}
+	/* yes, so allocate it */
 	semd_PTR newASLNode = allocSemd(semAdd);
 	insertProcQ(&(newASLNode->s_procQ), p);
-	newASLNode->s_next = target->s_next;
+	newASLNode->s_next = target->s_next; /* weave in asl node */
 	target->s_next = newASLNode;
 	p->p_semAdd = semAdd;
-	addokbuf("finished insertBlocked line 107\n");
 	return FALSE;
 }
 
+/*
+* Function: search the asl semd_t list for the specified
+* semd_t address; in the case that it is not found, simply
+* exit and return null; in the case that it is found, remove
+* the HEAD pcb_t from that process queue of the found semd_t
+* descriptor and return its pointer; this, too, like insertBlocked
+* can be tricky in its own right: if this process queue then becomes
+* null, meaning that emptyProcQ is null, then this semd_t must be
+* removed and sent to the semd_t free list
+*/
 pcb_PTR removeBlocked (int *semAdd){
-	addokbuf("entered removeBlocked");
 	semd_PTR target = searchASL(semAdd);	
 	if (target->s_next->s_semAdd != semAdd) { /* is the target semd there? */
-		addokbuf("finished removeBlocked");
 		return NULL;
 	} /* node found */
 	pcb_PTR removedPcb = removeProcQ(&(target->s_next->s_procQ));
@@ -127,68 +164,77 @@ pcb_PTR removeBlocked (int *semAdd){
 		target->s_next = emptySemd->s_next;
 		freeSemd(emptySemd);
 	}
-	addokbuf("finished removeBlocked");
+
 	return removedPcb;
 }
 
+/*
+* Function: remove the pcb_t passed in as the argument from
+* the semd_t that contains the specified pcb; if the pcb_t
+* does not appear in the process queue in the associated
+* semd_t, return null
+*/
 pcb_PTR outBlocked (pcb_PTR p){
-	addokbuf("entered outBlocked");
 	semd_PTR target = searchASL(p->p_semAdd); /* get semd associated with pcb */
 	
 	pcb_PTR removedPcb = outProcQ(&(target->s_next->s_procQ), p);
 	if (removedPcb == NULL) {
 		return NULL; /* pcb not found */
-		addokbuf("finished outBlocked");
 	}
 	if (emptyProcQ(target->s_next->s_procQ)) { /* free semd if procQ is now empty */
 		semd_PTR emptySemd = target->s_next;
 		target->s_next = emptySemd->s_next;
 		freeSemd(emptySemd);
 	}
-	addokbuf("finished outBlocked");
 	return removedPcb;
 }
 
+/*
+* Function: returns a pointer to the pcb_t
+* that is at the HEAD of the pcb_t process queue
+* with its associated semd_t address;
+* if there is no associated semaphore descriptor or
+* if the process queue associated with the
+* semaphore address is empty - return null in both cases
+*/
 pcb_PTR headBlocked (int *semAdd){
-	addokbuf("entered headBlocked");
 	semd_PTR target = searchASL(semAdd);
 	if (target->s_next->s_semAdd != semAdd) { /* is the target semd there? */
 		return NULL;
-		addokbuf("finished headBlocked");
 	}
-	addokbuf("finished headBlocked");
 	return headProcQ(target->s_next->s_procQ);
 }
 
+/*
+* Function: the first and perhaps most important
+* stored procedure - the allocation of the
+* active semaphore list asl of type semd_t;
+* here, the semd_t free list is allocated to be
+* of size MAXPROC, where MAXPROC = 20;
+* IMPORTANT! this implementation of the
+* semd_t free list uses 2 DUMMY nodes as to avoid
+* error-prone exit conditions - which will be referenced
+* further on in the documentation; thus, the semd_t
+* free list will have MAXPROC + 2 dummy nodes to account
+* for the space necessary to house enough semd_t on the
+* free list
+*/
 void initASL () {
-	addokbuf("entered initASL\n");
 	semdASL = mkEmptySemd();
-	addokbuf("initASL line 139\n");
 	semdFree = mkEmptySemd();
-	addokbuf("initASL line 141\n");
 	static semd_t foo[MAXPROC + 2];	/* init semd free list */
-	addokbuf("initASL line 143\n");
 	int i;
 	for (i = 0; i<MAXPROC; i++) {
-		freeSemd(&foo[i]);
-		addokbuf("line after freeSemd in loop in initASL\n");
+		freeSemd(&foo[i]); /* build free list */
 	}
-	addokbuf("initASL line 149\n");
-	/* init asl */
+	/* init asl and put in dummy nodes */
 	semdASL = &(foo[MAXPROC]);
-	addokbuf("initASL line 152\n");
 	semdASL->s_procQ = mkEmptyProcQ();
-	addokbuf("initASL line 154\n");
 	semdASL->s_semAdd = 0;
-	addokbuf("initASL line 156\n");
 	semdASL->s_next = &(foo[MAXPROC + 1]);
-	addokbuf("initASL line 158\n");
 	semdASL->s_next->s_procQ = mkEmptyProcQ();
-	addokbuf("initASL line 160\n");
 	semdASL->s_next->s_next = NULL;
-	addokbuf("initASL line 162\n");
 	semdASL->s_next->s_semAdd = MAXINT;
-	addokbuf("finished initASL\n");
 }
 
 

@@ -1,3 +1,13 @@
+/*************************************************** pcb.c **************************************************************
+	pcb.c encpsulates the functionality of Process Control Blocks, henceforth known as pcb_t; the pcb.c module is
+	responsible for three major pcb_t functions: first, a free list of MAXPROC pcb_t are allocated - where
+	MAXPROC = 20; then, pcb_t themsleves are to keep a child-parent-sibling relationships, where the siblings of
+	a pcb_t are kepted in a doubly liked list that is null terminated; third, it is responsible
+	for keeping process queues of pcb_t to be allocated fromon and off the free list.
+	This module contributes function definitions and a few sample fucntion implementations  to the contributors put forth by
+	the Kaya OS project
+***************************************************** pcb.c ************************************************************/
+
 #include "../h/const.h"
 #include "../h/types.h"
 
@@ -10,22 +20,32 @@
 
 /* PCB.C */
 
+/* the free list of pcb_t's */
 HIDDEN pcb_PTR pcbFree_h;
 
-char okbuf2[2048];	
-char *mp2 = okbuf2;
 
-
+/*
+* Function: initialize the tp of an
+* empty process queue - i.e. return null
+*/
 pcb_PTR mkEmptyProcQ (){
-	addokbuf("\nentered mkEmptyProcQ");
 	return NULL;
 }
 
+/*
+* Function: returns a boolean expression
+* if a tp is null - that is, a tp points
+* to an empty process queue
+*/
 int emptyProcQ (pcb_PTR tp){
-	addokbuf("\nentered emptyProcQ");
 	return (tp == NULL);
 }
 
+/*
+* Function: nulls out all of the fields for
+* a provided pcb_t; if a null pcb_t is provided,
+* the function will return null
+*/
 void cleanPcb(pcb_PTR p) {
 	p->p_next = NULL;  /* initialize fields */
 	p->p_prev = NULL;
@@ -36,44 +56,71 @@ void cleanPcb(pcb_PTR p) {
 	p->p_semAdd = NULL; 
 }
 
+/*
+* Function: pcb_t that are no longer in use
+* are returned to the free list here; this simply
+* requires the uses of the already written
+* insertProcQ, but must be cleaned before they
+* are inserted onto the list pointed to by
+* insertProcQ - that is, the free list.
+*/
 void freePcb (pcb_PTR p){
-	addokbuf("\nentered and finished? freePcb");
 	cleanPcb(p);
-	insertProcQ(&(pcbFree_h), p);
+
+	insertProcQ(&(pcbFree_h), p); /* insert into free list */
 }
 
+/*
+* Function: allocate a pcb_t from the free
+* free list; remove the pcb_t so that the
+* free list has n-1 pcb_t on it; if the
+* free list has no remaining free pcb_t
+* that is, the free list is empty,
+* simply return null to indicate that there
+* are no pcb_t remaining; otherwise, make the
+* free list n-1 pcb_t by calling removeProcQ()
+* given the free list as a pointer. Before the
+* pcb_t is returned, it is cleaned so that
+* can be appropriately used and a pointer to the
+* returned pcb_t is provided; additionally, the
+* pcb_t will be cleaned before it is returned
+*/
 pcb_PTR allocPcb (){
-	addokbuf("\nentered allocPcb");
-
+	/* return null if free list is empty */
 	if (emptyProcQ(pcbFree_h)) {
 		return NULL;
 	}
 
-	pcb_PTR tmp = removeProcQ(&pcbFree_h);
+	pcb_PTR tmp = removeProcQ(&pcbFree_h); /* remove head of free list */
 
 	if (tmp != NULL) {
-		cleanPcb(tmp);
-		addokbuf("\nalloc cleaned");
+		cleanPcb(tmp); /* clean it */
 	}
 
-	addokbuf("\nfinished allocPcb\n");
 	return tmp;
 }
 
+/*
+* Function: initializes the pcb_t
+* free list for pcb_t to be allocated to
+* by some predefined constant; this function
+* is an init call
+*/
 void initPcbs (){
-	addokbuf("\nentered initPcbs");
-	pcbFree_h = mkEmptyProcQ();
+	pcbFree_h = mkEmptyProcQ(); /* initialize the free list */
 	static pcb_t initialPcbs[MAXPROC];	
 	int i;
 	for (i = 0; i < MAXPROC; i++) {
-		freePcb(&(initialPcbs[i]));
+		freePcb(&(initialPcbs[i])); /* add each pcb to the free list */
 	}
-	addokbuf("\nfinished initPcbs");
 }
 
+/*
+* Function: insert the pcb_t p into the
+* process queue tp
+*/
 /* cases: 1) empty procQ, 2) non-empty procQ */
 void insertProcQ (pcb_PTR *tp, pcb_PTR p){
-	addokbuf("\nentered insertProcQ");
 	if (emptyProcQ(*tp)) { /* empty q case 1 */
 		p->p_next = p;
 		p->p_prev = p;
@@ -87,21 +134,22 @@ void insertProcQ (pcb_PTR *tp, pcb_PTR p){
 	}
 	/* set tail pointer */
 	(*tp) = p;
-	addokbuf("\ninsertProcQ finished");
 }
 
-/* 2 cases: the q is empty so return null, or 2, remove head */
 
-/* new outProcQ */
+/*
+* Function: remove the pcb_t pointed to by p
+* from the process queue pointed to by tp;
+* update the process queue's tp if necessary;
+* if the desired entry is not in the indicated queue,
+* return null; else, return p
+*/
 pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
-	addokbuf("\nentered outProcQ");
 	if (emptyProcQ(*tp)) {
-		addokbuf("\nline 99");
 		return NULL;
 	}
 
 	if ((*tp)->p_next == p) { /* head is p */
-		addokbuf("\nline 104");
 		return removeProcQ(tp);
 	}
 	/* previous if covers the cases of p being only pcb in q and if it's the head of a q with more than 1 in the q */
@@ -126,59 +174,77 @@ pcb_PTR outProcQ (pcb_PTR *tp, pcb_PTR p){
 	return NULL;
 }
 
+
+/*
+* Function: removes the first element from the
+* processes queue whose tp is passed in as an
+* argument; return null if the tp is null - meaning
+* there is no list
+*/
 pcb_PTR removeProcQ (pcb_PTR *tp){
-	if (emptyProcQ(*tp)) {
-		addokbuf("\nline 132");
+	if (emptyProcQ(*tp)) { /* is the procQ empty? */
 		return NULL;
 	}
 
 	/* is head only pcb in q or are there others */
-	addokbuf("\nline 137");
 	if ((*tp)->p_next == (*tp)) { /* head/tail is only one in q */
-		addokbuf("\nline 139");
 		pcb_PTR removedPcb = (*tp);
 		(*tp) = mkEmptyProcQ();
+
 		return removedPcb;
 	}
 	/* head isn't only pcb in q */
-	addokbuf("\nline 144");
 	pcb_PTR head = (*tp)->p_next;
 	head->p_prev->p_next = head->p_next;
 	head->p_next->p_prev = head->p_prev;
+
 	return head;
 }
 
 
-
-
+/*
+* Function: returns a pointer to the head
+* of a process queue signified by tp - however
+* this head should not be removed; if there is no
+* head of the process queue - that is, there is
+* no process queue, return null
+*/
 pcb_PTR headProcQ (pcb_PTR tp){
-	addokbuf("\nentered headProcQ");
 	if (emptyProcQ(tp)) {
-		addokbuf("\nheadProcQ finished");
 		return NULL;
 	}
-	addokbuf("\nheadProcQ finished");
 	return (tp->p_next);
 }
 
 pcb_PTR cleanChild(pcb_PTR p) {
-	p->p_sib = NULL;
+	p->p_sib = NULL; /* null out fields */
 	p->p_prevSib = NULL;
 	p->p_prnt = NULL;
 
 	return p;
 }
 
+
+/*
+* Function: takes a pcb_t as an
+* argument and returns a boolean expression
+* as to whether or not a particular
+* pcb_t has a child or not
+*/
 int emptyChild (pcb_PTR p){
-	addokbuf("\nentered and finished? emptyChild");
 	return (p->p_child == NULL);
 }
 
+/*
+* Function: takes a parent pcb_t and
+* provides a pcb_t to be linked to that
+* parent
+*/
 /* assumption: it's fine to insert new child at the head of the child list and it's fine to have child lists singly linked */
 /* cases: 1) empty child list, 2) non-empty child list */
 void insertChild (pcb_PTR prnt, pcb_PTR p){
-	
-	if (emptyChild(prnt)) {
+	/* does prnt have any children? */
+	if (emptyChild(prnt)) { /* no so make p only child of prnt */
 		prnt->p_child = p;
 
 		p->p_prnt = prnt;
@@ -187,7 +253,7 @@ void insertChild (pcb_PTR prnt, pcb_PTR p){
 
 		return;
 	}
-
+	/* prnt has children, so weave in p */
 	pcb_PTR firstChild = prnt->p_child;
 
 	p->p_sib = firstChild;
@@ -199,21 +265,28 @@ void insertChild (pcb_PTR prnt, pcb_PTR p){
 	prnt->p_child = p;
 }
 
-
+/*
+* Function: takes a parent pcb_t and
+* removes and returns the first pcb_t child -
+* baring there is one; if the parent
+* pcb_t, however, is null, then this
+* function must return null to hanle
+* that case
+*/
 pcb_PTR removeChild (pcb_PTR p){
-	
+	/* does p even have any children */
 	if (emptyChild(p)) {
 		return NULL;
 	}
 
 	pcb_PTR removedChild = p->p_child;
 
-	if (removedChild->p_sib == NULL) {
+	if (removedChild->p_sib == NULL) { /* is p the only child? */
 		p->p_child = NULL;
 
 		return cleanChild(removedChild); 
 	}
-
+	/* remove first child and adjust pointers */
 	removedChild->p_sib->p_prevSib = NULL;
 	p->p_child = removedChild->p_sib;
 
@@ -221,38 +294,42 @@ pcb_PTR removeChild (pcb_PTR p){
 }
 
 
-/* five conditions to account for: 1) p has no parent, 2) p is only child of its parent, 3) more than one pcb in child list and target p is first one, 4) it's one of more than one and isn't the first */
+/*
+* Function: makes the pcb_t given by p
+* no longer a child of the its parent
+* pcb_t, and remove it from the list;
+* however, this can be any child in the list;
+* if the pcb_t has no parent, simply return
+* null
+*/
 pcb_PTR outChild (pcb_PTR p){ 
-	if (p == NULL) {
+	if (p == NULL) { /* this shouldn't be true */
 		return NULL;
 	}
 
-	if (p->p_prnt == NULL) {
+	if (p->p_prnt == NULL) { /* does p have a parent? */
 		return NULL;
 	}
-	addokbuf("\np has a parent line 232");
 
 	pcb_PTR firstChild = p->p_prnt->p_child;
 
 	if (firstChild == p) {
-		addokbuf("\nfirst child is p line 237");
 		return removeChild(p->p_prnt);
 	}
 
 	if (firstChild->p_sib == NULL) { /*shouldn't be able to get this to be true */
-		addokbuf("\n shouldn't be able to get here line 241");
 		return NULL;
 	}
 	/* p is not the start of the child list */
 	if (p->p_sib == NULL) { /* is p at the end of the child list */
-		addokbuf("\np is last child line 247");
 		p->p_prevSib->p_sib = NULL;
+
 		return cleanChild(p);
 	}
 	/* p should be somewhere in middle of child list */
 	p->p_prevSib->p_sib = p->p_sib;
 	p->p_sib->p_prevSib = p->p_prevSib;
-	addokbuf("\np is a middle child line 254");
+
 	return cleanChild(p);
 }
 
