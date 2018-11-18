@@ -176,6 +176,9 @@ pcb_PTR removeBlocked (int *semAdd){
 */
 pcb_PTR outBlocked (pcb_PTR p){
 	semd_PTR target = searchASL(p->p_semAdd); /* get semd associated with pcb */
+	if (target->s_next->s_semAdd != semAdd) { /* is the target semd there? */
+		return NULL;
+	} /* node found */
 	
 	pcb_PTR removedPcb = outProcQ(&(target->s_next->s_procQ), p);
 	if (removedPcb == NULL) {
