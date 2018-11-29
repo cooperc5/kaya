@@ -15,9 +15,6 @@
 #include "../e/pcb.e"
 #include "../e/asl.e"
 
-#define TRUE 1
-#define FALSE 0
-
 /* PCB.C */
 
 /* the free list of pcb_t's */
