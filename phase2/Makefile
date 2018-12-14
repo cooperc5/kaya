@@ -19,39 +19,38 @@ EF = umps2-elf2umps
 all: kernel.core.umps
 
 kernel.core.umps: kernel
-	$(EF) -k kernel
+        $(EF) -k kernel
 
 kernel: p2test.o initial.o interrupts.o scheduler.o exceptions.o asl.o pcb.o
-	$(LD) $(LDCOREFLAGS) $(LIBDIR)/crtso.o p2test.o initial.o interrupts.o scheduler.o exceptions.o asl.o pcb.o $(LIBDIR)/libumps.o -o kernel
+        $(LD) $(LDCOREFLAGS) $(LIBDIR)/crtso.o p2test.o initial.o interrupts.o scheduler.o exceptions.o asl.o pcb.o $(LIBDIR)/libumps.o -o kernel
 
 p2test.o: p2test.c $(DEFS)
-	$(CC) $(CFLAGS) p2test.c
+        $(CC) $(CFLAGS) p2test.c
 
 initial.o: initial.c $(DEFS)
-	$(CC) $(CFLAGS) initial.c
+        $(CC) $(CFLAGS) initial.c
 
 interrupts.o: interrupts.c $(DEFS)
-	$(CC) $(CFLAGS) interrupts.c
+        $(CC) $(CFLAGS) interrupts.c
 
 scheduler.o: scheduler.c $(DEFS)
-	$(CC) $(CFLAGS) scheduler.c
+        $(CC) $(CFLAGS) scheduler.c
 
 exceptions.o: exceptions.c $(DEFS)
-	$(CC) $(CFLAGS) exceptions.c
+        $(CC) $(CFLAGS) exceptions.c
 
 asl.o: ../phase1/asl.c $(DEFS)
-	$(CC) $(CFLAGS) ../phase1/asl.c
+        $(CC) $(CFLAGS) ../phase1/asl.c
 
 pcb.o: ../phase1/pcb.c $(DEFS)
-	$(CC) $(CFLAGS) ../phase1/pcb.c
+        $(CC) $(CFLAGS) ../phase1/pcb.c
 
 # crti.o: crti.s
-# 	$(AS) crti.s -o crti.o
-
+#       $(AS) crti.s -o crti.o
 
 clean:
-	rm -f *.o term*.umps kernel
+        rm -f *.o term*.umps kernel
 
 
 distclean: clean
-	-rm kernel.*.umps tape0.umps
+        -rm kernel.*.umps tape0.umps
