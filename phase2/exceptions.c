@@ -24,7 +24,7 @@ void syscallHandler() {
         userMode = TRUE;
 	}
 
-	if (sysCallNumber > 8 && sysCallNumber >= 255 && userMode) {
+	if (sysCallNumber <= 8 && sysCallNumber > 0 && userMode) {
 		state_PTR oldProgram = (state_PTR) PRGMTRAPOLDAREA;
 		copyState(oldState, oldProgram);
 		/* change ExcCode in cause register */
