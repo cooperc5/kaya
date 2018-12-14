@@ -41,22 +41,22 @@ int main() {
 	state_PTR tblMgmtState;
 	state_PTR interruptState;
 
-	/******************************************** SYSCALL AREA ****************************************/
+	/* syscall initialization */
 	syscallState = (state_PTR) SYSCALLNEWAREA;
     syscallState->s_status = OFF;   
     syscallState->s_sp = RAMTOP;
     syscallState->s_pc = syscallState->s_t9 = (memaddr) syscallHandler; 
-    /******************************************** PRGMTRAP AREA ***************************************/
+    /* pgmtrap initilization */
     programTrapState = (state_PTR) PRGMTRAPNEWAREA;
     programTrapState->s_status = OFF;   
     programTrapState->s_sp = RAMTOP;
     programTrapState->s_pc = programTrapState->s_t9 = (memaddr) programTrapHandler; 
-    /******************************************** TBLMGMT AREA ****************************************/
+    /* table management initialization */
     tblMgmtState = (state_PTR) TBLMGMTNEWAREA;
     tblMgmtState->s_status = OFF;   
     tblMgmtState->s_sp = RAMTOP;
     tblMgmtState->s_pc = tblMgmtState->s_t9 = (memaddr) translationLookasideBufferHandler; 
-    /******************************************** INTRUPT AREA ****************************************/
+    /* interrupt initialization */
     interruptState = (state_PTR) INTERRUPTNEWAREA;
     interruptState->s_status = OFF;   
     interruptState->s_sp = RAMTOP;

@@ -121,9 +121,10 @@ void copyState(state_PTR oldState, state_PTR destState){
 HIDDEN void terminateProgeny(pcb_PTR p) {
 	while (!emptyChild(p)) {
 			terminateProgeny(removeChild(p));
+			processCount--;
 	}
 	/* n-1 processes left */
-    processCount--;
+    
     /* check of the pcb_t has a semaphore address */
     if (p->p_semAdd != NULL) {
         /* get the semaphore */
@@ -143,11 +144,11 @@ HIDDEN void terminateProgeny(pcb_PTR p) {
          /* yank the process from the parent */
          outChild(currentProcess);
     } else {
-         /* yank the process from the ready queue */
+         /* not on asl nor currP so must be on ready q */
          outProcQ(&(readyQueue), p);
     }
-    /* there are no mo children, so the process itself is free */
 	freePcb(p);
+	processCount--;
 }
 
 HIDDEN void passUpOrDie(int callNumber, state_PTR old) {
@@ -175,7 +176,7 @@ HIDDEN void passUpOrDie(int callNumber, state_PTR old) {
 }
 
 HIDDEN void waitForIODevice(state_PTR state) {
-    /* get the line number in the a1 register */
+    /* get the line from a1 */
     int line = state->s_a1;
     /* get the device number in the a2 register */
     int device = state->s_a2; 
@@ -318,10 +319,10 @@ HIDDEN void passeren(state_PTR state) {
     LDST(state);
 }
 
-HIDDEN void verhogen(state_PTR state) {
+HIDDEN void verhogen(state_PTR callerState) {
     /* the semaphore is placed in the a1 register of the 
     passed in state_t */
-    int* sem = (int*) state->s_a1;
+    int* sem = (int*) callerState->s_a1;
     /* increment the semaphore - the V operation on 
     the semaphore */
     (*(sem))++;
