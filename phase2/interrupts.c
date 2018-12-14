@@ -224,7 +224,7 @@ void interruptHandler() {
         /* check if the transmission status is recieve command */
         if((devReg->t_transm_status & FULLBYTE) != READY) {
             /* get the index - where NOSEM is the offset of -3 */
-            i = DEVPERINT * (lineNumber - NOSEM) + device;
+            i = DEVPERINT * (line - NOSEM) + device;
             /* mark the flag as false - turn off recieve */
             receive = FALSE;
         } else {
