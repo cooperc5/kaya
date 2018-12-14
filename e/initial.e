@@ -13,8 +13,6 @@
     extern pcb_PTR currentProcess;
     /* the queue of ready processes */
     extern pcb_PTR readyQueue;
-    /* semaphore list */
-    extern int semdTable[MAXSEMALLOC];
     /* clock */
     extern cpu_t startTOD;
 /* * */
