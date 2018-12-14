@@ -54,4 +54,4 @@ clean:
 
 
 distclean: clean
--rm kernel.*.umps tape0.umps
+	-rm kernel.*.umps tape0.umps
