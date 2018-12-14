@@ -25,9 +25,12 @@ pcb_PTR readyQueue;
 /* the array of device semaphores */
 int devSemdTable[MAXDEVSEM];
 
-
+void debuginitial(int a) {
+	int i;
+	i=0;
+}
 int main() {
-
+	debuginitial(33);
 	devregarea_PTR bus = (devregarea_PTR) RAMBASEADDR;
     
 	unsigned int RAMTOP = (bus->rambase) + (bus->ramsize);
@@ -81,11 +84,13 @@ int main() {
     currentProcess->p_s.s_pc = (memaddr) test; /*insert p2test function here*/
     /* initialize the status */
     currentProcess->p_s.s_status = (OFF | INTERRUPTSON | IM | TE);
+
     insertProcQ(&(readyQueue), currentProcess);
 
     processCount++;
 
     currentProcess = NULL;
+
     LDIT(INTERVAL);
 
     scheduler();

@@ -9,7 +9,13 @@ pcb_PTR runningProcess;
 cpu_t startTOD;
 cpu_t currentTOD;
 
+void debugScheduler(int a) {
+	int i;
+	i=0;
+}
+
 extern void scheduler() {
+	debugScheduler(13);
 	if (emptyProcQ(readyQueue)) {
 		currentProcess = NULL;
 		if (processCount == 0) {
