@@ -68,16 +68,16 @@ void syscallHandler() {
 }
 
 HIDDEN void createProcess(state_PTR callerState) {
-	state_t newState = (state_t) currentProcess->p_s.s_a1;
-	newPcb = allocPcb();
+	state_PTR newState = (state_PTR) callerState->s_a1;
+	pcb_PTR newPcb = allocPcb();
 	if (newPcb == NULL) { /* no free pcbs */
 		currentProcess->p_s.s_v0 = -1;
 		LDST(callerState);
 		return;
 	}
-	copyState(&newState, &(newPcb->p_s));
+	copyState(newState, &(newPcb->p_s));
 	insertChild(currentProcess, newPcb);
-	insertProcQ(&(readyQueue), p);
+	insertProcQ(&(readyQueue), newPcb);
 
 	currentProcess->p_s.s_v0 = 0;
 	processCount++;
@@ -125,7 +125,7 @@ HIDDEN void terminateProgeny(pcb_PTR p) {
         outBlocked(p);
         /* if the semaphore greater than 0 and less than 48, then
         it is a device semapore */
-        if(semaphore >= &(semdTable[0]) && semaphore <= &(semdTable[CLOCK])) {
+        if(semaphore >= &(devSemdTable[0]) && semaphore <= &(semdTable[CLOCK])) {
             /* we have 1 less waiting process */
             softBlockedCount--;
         } else {
@@ -180,16 +180,16 @@ static void waitForIODevice(state_PTR state) {
     }
     /* find the corresponding semaphore for the device */
     int i = findSemaphore(line, device, read);
-    int* sema = &(semdTable[i]);
+    int* sem = &(devSemdTable[i]);
     /* perform a P operation */
     (*sem)--;
     if((*sem) < 0) {
         /* block the current process */
-        insertBlocked(semaphore, currentProcess);
+        insertBlocked(sem, currentProcess);
+        /* copy the old syscall area to the new pcb_t state_t */
+        copyState(state, &(currentProcess->p_s));
         /* we have 1 more waiting process */
         softBlockedCount++;
-        /* copy the old syscall area to the new pcb_t state_t */
-        copyState(state, &(currentProcess->p_state));
         /* get a new process */
         scheduler();
     }
@@ -197,31 +197,31 @@ static void waitForIODevice(state_PTR state) {
     LDST(state);
 }
 
-static int findSemaphore(int lineNumber, int deviceNumber, int flag) {
+static int findSemaphore(int line, int device, int flag) {
     int offset;
     /* terminal read? */
     if(flag == TRUE) {
         /* index with the flag offset */
-        offset = (lineNumber - NOSEM + flag); 
+        offset = (line - NOSEM + flag); 
     } else {
         /* index no flag offset */
-        offset = (lineNumber - NOSEM);
+        offset = (line - NOSEM);
     }
     /* get the index from the offset and the deice number */
-    return (DEVPERINT * offset) + deviceNumber;
+    return (DEVPERINT * offset) + device;
 }
 
  static void waitForClock(state_PTR state) {
      /* get the semaphore index of the clock timer */
-     int *semaphore = (int*) &(semdTable[CLOCK]);
+     int *sem = (int*) &(semdTable[CLOCK]);
      /* perform a passeren operation */
-     (*semaphore)--;
-     if ((*semaphore) < 0)
+     (*sem)--;
+     if ((*sem) < 0)
      {
          /* block the process */
-         insertBlocked(semaphore, currentProcess);
+         insertBlocked(sem, currentProcess);
          /* copy from the old syscall area into the new pcb_state */
-         copyState(state, &(currentProcess->p_state));
+         copyState(state, &(currentProcess->p_s));
          /* increment the number of waiting processes */
          softBlockedCount++;
      }
@@ -230,7 +230,7 @@ static int findSemaphore(int lineNumber, int deviceNumber, int flag) {
 
  static void getCpuTime(state_PTR state) {
         /* copy the state from the old syscall into the pcb_t's state */
-        copyState(state, &(currentProcess->p_state));
+        copyState(state, &(currentProcess->p_s));
         /* the clock can be started by placing a new value in the 
         STCK ROM function */
         cpu_t stopTOD;
@@ -240,10 +240,10 @@ static int findSemaphore(int lineNumber, int deviceNumber, int flag) {
         cpu_t elapsedTime = stopTOD - startTOD;
         currentProcess->p_time = (currentProcess->p_time) + elapsedTime;
         /* store the state in the pcb_t's v0 register */
-        currentProcess->p_state.s_v0 = currentProcess->p_time;
+        currentProcess->p_s.s_v0 = currentProcess->p_time;
         /* start the clock for the start TOD */
         STCK(startTOD);
-        LDST(&(currentProcess->p_state));
+        LDST(&(currentProcess->p_s));
 }
 
 static void specifyExceptionsStateVector(state_PTR state) {
@@ -254,13 +254,13 @@ static void specifyExceptionsStateVector(state_PTR state) {
         case TLBTRAP:
             /* if the new tlb has already been set up,
             kill the process */
-            if(currentProcess->newTlb != NULL) {
+            if(currentProcess->newTLB != NULL) {
                 terminateProcess();
             }
             /* store the syscall area state in the new tlb */
-            currentProcess->newTlb = (state_PTR) state->s_a3;
+            currentProcess->newTLB = (state_PTR) state->s_a3;
             /* store the syscall area state in the old tlb*/
-            currentProcess->oldTlb = (state_PTR) state->s_a2;
+            currentProcess->oldTLB = (state_PTR) state->s_a2;
             break;
         case PROGTRAP:
             /* if the new pgm has already been set up,
@@ -289,10 +289,10 @@ static void specifyExceptionsStateVector(state_PTR state) {
 
 static void passeren(state_PTR state) {
     /* get the semaphore in the s_a1 */
-    int *semaphore = (int*) state->s_a1;
+    int *sem = (int*) state->s_a1;
     /* decrement teh semaphore */
-    (*(semaphore))--;
-    if ((*(semaphore)) < 0) {
+    (*(sem))--;
+    if ((*(sem)) < 0) {
         cpu_t stopTOD;
         STCK(stopTOD);
         /*Store elapsed time*/
@@ -300,11 +300,11 @@ static void passeren(state_PTR state) {
         /* add the elapsed time to the current process */
         currentProcess->p_time = currentProcess->p_time + elapsedTime;
         /* copy from the old syscall area to the new process's state */
-        copyState(state, &(currentProcess->p_state));
+        copyState(state, &(currentProcess->p_s));
         /* the process now must wait */
-        insertBlocked(semaphore, currentProcess);
+        insertBlocked(sem, currentProcess);
         /* get a new job */
-        invokeScheduler();
+        scheduler();
     }
     /* if the semaphore is not less than zero, do not 
     block the process, just load the new state */
@@ -314,16 +314,16 @@ static void passeren(state_PTR state) {
 static void verhogen(state_PTR state) {
     /* the semaphore is placed in the a1 register of the 
     passed in state_t */
-    int* semaphore = (int*) state->s_a1;
+    int* sem = (int*) state->s_a1;
     /* increment the semaphore - the V operation on 
     the semaphore */
-    (*(semaphore))++;
+    (*(sem))++;
     /* if the synchronization semaphore description is <= 0, 
     then it will remove the process from the blocked processes 
     and place it in the ready queue - which synchronizes the processes */
-    if(*(semaphore) <= 0) {
+    if(*(sem) <= 0) {
         /* unblock the next process */
-        pcb_PTR newProcess = removeBlocked(semaphore);
+        pcb_PTR newProcess = removeBlocked(sem);
         /* the current process is then placed in the ready 
         queue - baring its not null */
         if(newProcess != NULL) {
