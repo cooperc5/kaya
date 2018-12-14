@@ -43,23 +43,22 @@ int main() {
 
 	/******************************************** SYSCALL AREA ****************************************/
 	syscallState = (state_PTR) SYSCALLNEWAREA;
-    syscallState->s_status = 0;   
+    syscallState->s_status = OFF;   
     syscallState->s_sp = RAMTOP;
     syscallState->s_pc = syscallState->s_t9 = (memaddr) syscallHandler; 
     /******************************************** PRGMTRAP AREA ***************************************/
     programTrapState = (state_PTR) PRGMTRAPNEWAREA;
-    programTrapState->s_status = 0;   
+    programTrapState->s_status = OFF;   
     programTrapState->s_sp = RAMTOP;
     programTrapState->s_pc = programTrapState->s_t9 = (memaddr) programTrapHandler; 
     /******************************************** TBLMGMT AREA ****************************************/
     tblMgmtState = (state_PTR) TBLMGMTNEWAREA;
-    /* privlaged ROM instruction */
-    tblMgmtState->s_status = 0;   
+    tblMgmtState->s_status = OFF;   
     tblMgmtState->s_sp = RAMTOP;
     tblMgmtState->s_pc = tblMgmtState->s_t9 = (memaddr) translationLookasideBufferHandler; 
     /******************************************** INTRUPT AREA ****************************************/
     interruptState = (state_PTR) INTERRUPTNEWAREA;
-    interruptState->s_status = 0;   
+    interruptState->s_status = OFF;   
     interruptState->s_sp = RAMTOP;
     interruptState->s_pc = interruptState->s_t9 = (memaddr) interruptHandler; 
 
@@ -81,7 +80,7 @@ int main() {
     currentProcess = allocPcb();
 
     currentProcess->p_s.s_sp = (RAMTOP - PAGESIZE);
-    currentProcess->p_s.s_pc = (memaddr) test; /*insert p2test function here*/
+    currentProcess->p_s.s_pc = currentProcess->p_state.s_t9 = (memaddr) test; /*insert p2test function here*/
     /* initialize the status */
     currentProcess->p_s.s_status = (OFF | INTERRUPTSON | IM | TE);
 
