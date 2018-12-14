@@ -209,10 +209,10 @@ void interruptHandler() {
         intervalTimerHandler(startTime, endTime);
     } else {
         /* if it was not lines 0-2, get the line number */
-        lineNumber = getLineNumber(cause);
+        line = getLineNumber(cause);
     }
     /* get the device number */
-    deviceNumber = getDeviceNumber(line);
+    device = getDeviceNumber(line);
     /* now that we have the device number and the line number, we compute the well-known
     address in memory */
     devReg = (device_PTR) (INTDEVREG + ((line - NOSEM) * DEVREGSIZE * DEVPERINT) + (device * DEVREGSIZE));

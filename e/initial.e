@@ -15,7 +15,9 @@
     extern pcb_PTR readyQueue;
     /* clock */
     extern cpu_t startTOD;
-/* * */
     extern cpu_t currentTOD;
+
+    /* dev sem table */
+    extern int devSemdTable[MAXDEVSEM];
 
 #endif
