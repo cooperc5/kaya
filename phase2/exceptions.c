@@ -152,7 +152,7 @@ HIDDEN void passUpOrDie(int callNumber, state_PTR old) {
             }
             break;
         case TLBTRAP:
-            if(currentProcess->newTlb != NULL) { /* newTLB hasn't been written to previously */
+            if(currentProcess->newTLB != NULL) { /* newTLB hasn't been written to previously */
                 copyState(old, currentProcess->oldTLB);
                 LDST(currentProcess->newTLB);
             }
@@ -213,7 +213,7 @@ static int findSemaphore(int line, int device, int flag) {
 
  static void waitForClock(state_PTR state) {
      /* get the semaphore index of the clock timer */
-     int *sem = (int*) &(semdTable[CLOCK]);
+     int *sem = (int*) &(devSemdTable[CLOCK]);
      /* perform a passeren operation */
      (*sem)--;
      if ((*sem) < 0)
