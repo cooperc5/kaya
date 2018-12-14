@@ -100,6 +100,12 @@ typedef struct pcb_t {
 		struct pcb_t* p_sib;
 		struct pcb_t* p_prevSib;
     state_t	p_s;
+    state_PTR oldSys;
+    state_PTR newSys;
+    state_PTR oldPgm;
+    state_PTR newPgm;
+    state_PTR oldTLB;
+    state_PTR newTLB;
     int* p_semAdd;
 }  pcb_t, *pcb_PTR;
 

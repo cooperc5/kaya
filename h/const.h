@@ -10,6 +10,7 @@
 /* Maximum process blocks */
 #define MAXPROC  		20
 #define MAXINT 2147483647
+#define MAXDEVSEM 49
 
 
 /* Hardware & software constants */
@@ -38,14 +39,74 @@
 
 #define NULL ((void *)0xFFFFFFFF)
 
+/* syscalls */
+#define CREATEPROCESS 1
+#define TERMINATEPROCESS 2
+#define VERHOGEN 3
+#define PASSEREN 4
+#define SPECIFYEXCEPTIONSTATEVECTOR 5
+#define GETCPUTIME 6
+#define WAITFORCLOCK 7
+#define WAITFORIODEVICE 8
+
+/* important status register bits */
+#define OFF 0x00000000
+#define IEc 0x00000001
+#define KUc 0x00000002
+#define IEp 0x00000004
+#define KUp 0x00000008
+#define IEo 0x00000010
+#define KUo 0x00000020
+#define IM  0x0000FF00
+#define BEV 0x00400000
+#define VMc 0x01000000
+#define VMp 0x02000000
+#define VMo 0x04000000
+#define TE  0x08000000
+#define CU  0x10000000
+
+/* Set quantum value to 5 miliseconds and pseudo clock interval */
+#define INTERVAL 100000
+#define QUANTUM 5000
+
+/* important cause register hex codes */
+#define BLANKEXCCODE 0xFFFFFF83
+#define EXC_RI 0x00000028
+
+/* processor state areas */
+/* SYSYCALLS */
+#define SYSCALLNEWAREA 0x200003D4
+#define SYSCALLOLDAREA 0X20000348
+/* Program trap */
+#define PRGMTRAPNEWAREA 0x200002BC
+#define PRGMTRAPOLDAREA 0x20000230
+/* Table management */
+#define TBLMGMTNEWAREA 0x200001A4
+#define TBLMGMTOLDAREA 0x20000118
+/* Interrupt handling */
+#define INTERRUPTNEWAREA 0x2000008C
+#define INTERRUPTOLDAREA 0x20000000
+
+/* clock sem number */
+#define CLOCK MAXSEMALLOC - 1
+
+/* devices */
+#define FIRST 0x00000001
+#define SECOND 0x00000002
+#define THIRD 0x0000004
+#define FOURTH 0x00000008
+#define FIFTH 0x000000010
+#define SIXTH 0x00000020
+#define SEVENTH 0x00000040
+#define EIGHTH 0x00000080
+#define STARTDEVICE 0x00000001
+
 
 /* vectors number and type */
 #define VECTSNUM	4
-
 #define TLBTRAP		0
 #define PROGTRAP	1
 #define SYSTRAP		2
-
 #define TRAPTYPES	3
 
 
@@ -89,6 +150,8 @@
 /* Useful operations */
 #define STCK(T) ((T) = ((* ((cpu_t *) TODLOADDR)) / (* ((cpu_t *) TIMESCALEADDR))))
 #define LDIT(T)	((* ((cpu_t *) INTERVALTMR)) = (T) * (* ((cpu_t *) TIMESCALEADDR))) 
+/* returns true if bit in position pos is on */
+#define CHECK_BIT(var,pos) (((var)>>(pos)) & 1)
 
 
 #endif

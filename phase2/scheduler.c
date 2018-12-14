@@ -12,27 +12,46 @@ cpu_t currentTOD;
 extern void scheduler() {
 	if (emptyProcQ(readyQueue)) {
 		if (processCount == 0) {
-			/*invoke HALT instruction*/
+			currentProcess = NULL;
+        	/* do we have any job to do? */
+       		if(processCount == 0) {
+            /* nothing to do */
+            	HALT();
+			}
 			return;
 		}
 		if (processCount > 0) {
 			if (softBlockCount == 0) {
-				/*invoke PANIC instruction*/
+				PANIC();
 				return;
 			}
 			if (softBlockCount > 0) {
-				/* set wait bit in state */
-				/*enter a WAIT state*/
+				/* modify status */
+				setSTATUS(getSTATUS() | OFF | INTERRUPTSON | IEc | IM);
+				WAIT();
 				return;
 			}
 		}
-	}
-	pcb_PTR currentProcess = removeProcQ(&readyQueue);
+	
 
-	if (currentProcess != NULL) {
-		/* quantum stuff and something */
+	} else {
+        /* use round robin for next job */
+        if (currentProcess != NULL) {
+            /* start the clock */
+            STCK(currentTOD);
+            currentProcess->p_time = currentProcess->p_time + (currentTOD - startTOD);
+        }
+        /* set interrupt timer */
+        if(currentTOD < QUANTUM) {
+            setTIMER(currentTOD);
+        } else {
+            /* set the quantum */
+            setTIMER(QUANTUM);
+        }
+        /* grab a job */
+        currentProcess = removeProcQ(&(readyQueue));
+        STCK(startTOD);
+        /* perform a context switch */
+        LDST(&(currentProcess->p_state));
 	}
-	runningProcess = currentProcess;
-	/* load a timer with the value of a quantum */
-	LDST(&(currentProcess->p_s));
 }

@@ -22,6 +22,8 @@ int softBlockedCount;
 pcb_PTR currentProcess;
 /* the queue of ready processes */
 pcb_PTR readyQueue;
+/* the array of device semaphores */
+int devSemdTable[MAXDEVSEM];
 
 
 int main() {
@@ -53,7 +55,7 @@ int main() {
     tblMgmtState->s_sp = RAMTOP;
     tblMgmtState->s_pc = tblMgmtState->s_t9 = (memaddr) translationLookasideBufferHandler; 
     /******************************************** INTRUPT AREA ****************************************/
-    interruptState = (state_PTR) INTRUPTNEWAREA;
+    interruptState = (state_PTR) INTERRUPTNEWAREA;
     interruptState->s_status = 0;   
     interruptState->s_sp = RAMTOP;
     interruptState->s_pc = interruptState->s_t9 = (memaddr) interruptHandler; 
@@ -62,6 +64,10 @@ int main() {
 	initPcbs();
 	initASL();
 
+	int i;
+	for (i=0; i<MAXDEVSEM; i++) {
+		devSemdTable[i] = 0;
+	}
 
     processCount = 0;
     softBlockedCount = 0;
@@ -72,12 +78,15 @@ int main() {
     currentProcess = allocPcb();
 
     currentProcess->p_s.s_sp = (RAMTOP - PAGESIZE);
-    currentProcess->p_s.s_pc = (memaddr) /*insert p2test function here*/
+    currentProcess->p_s.s_pc = (memaddr) test; /*insert p2test function here*/
     /* initialize the status */
-    currentProcess->p_s.s_status = (ALLOFF | INTERRUPSON); /*finish this with supervisor mode/whatever)
-
+    currentProcess->p_state.s_status = (ALLOFF | INTERRUPTSON | IM | TE);
+    insertProcQ(&(readyQueue), currentProcess);
 
     processCount++;
+
+    currentProcess = NULL;
+    LDIT(INTERVAL);
 
     scheduler();
 }

@@ -92,6 +92,13 @@ pcb_PTR allocPcb (){
 
 	if (tmp != NULL) {
 		cleanPcb(tmp); /* clean it */
+
+		tmp->oldSys = NULL;
+    	tmp->newSys = NULL;
+    	tmp->oldPgm = NULL;
+    	tmp->newPgm = NULL;
+    	tmp->oldTLB = NULL;
+    	tmp->newTLB = NULL;
 	}
 
 	return tmp;
