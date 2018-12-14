@@ -10,20 +10,27 @@
 #include "../e/asl.e"
 #include "/usr/local/include/umps2/umps/libumps.e"
 
-void syscallHandler() {
-	state_PTR oldState = (state_PTR) SYSCALLOLDAREA;
+void debugA(int a){
+	int i;
+	i = 0;
+}
 
+void syscallHandler() {
+	debugA(19);
+	state_PTR oldState = (state_PTR) SYSCALLOLDAREA;
+	debugA(21);
 	oldState->s_pc = oldState->s_pc + 4;
 	
 	unsigned int sysCallNumber = oldState->s_a0;
 	unsigned int status = oldState->s_status;
+	
 	int userMode = FALSE;
 
 	if((status & KUp) != OFF) {
         /* in user mode */
         userMode = TRUE;
 	}
-
+	debugA(33);
 	if (sysCallNumber <= 8 && sysCallNumber > 0 && userMode) {
 		state_PTR oldProgram = (state_PTR) PRGMTRAPOLDAREA;
 		copyState(oldState, oldProgram);
