@@ -21,7 +21,7 @@ extern void scheduler() {
 			return;
 		}
 		if (processCount > 0) {
-			if (softBlockCount == 0) {
+			if (softBlockedCount == 0) {
 				PANIC();
 				return;
 			}
@@ -52,7 +52,7 @@ extern void scheduler() {
         currentProcess = removeProcQ(&(readyQueue));
         STCK(startTOD);
         /* perform a context switch */
-        LDST(&(currentProcess->p_state));
+        LDST(&(currentProcess->p_s));
 	}
 }
 
