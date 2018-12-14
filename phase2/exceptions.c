@@ -120,17 +120,17 @@ HIDDEN void terminateProgeny(pcb_PTR p) {
     /* check of the pcb_t has a semaphore address */
     if (p->p_semAdd != NULL) {
         /* get the semaphore */
-        int* semaphore = p->p_semAdd;
+        int* sem = p->p_semAdd;
         /* call outblocked on the pcb_t */
         outBlocked(p);
         /* if the semaphore greater than 0 and less than 48, then
         it is a device semapore */
-        if(semaphore >= &(devSemdTable[0]) && semaphore <= &(semdTable[CLOCK])) {
+        if(sem >= &(devSemdTable[0]) && sem <= &(devSemdTable[CLOCK])) {
             /* we have 1 less waiting process */
             softBlockedCount--;
         } else {
             /* not a device semaphore */
-            (*semaphore)++;
+            (*sem)++;
         }
     } else if(p == currentProcess){
          /* yank the process from the parent */
