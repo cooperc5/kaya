@@ -64,6 +64,7 @@
 #define VMo 0x04000000
 #define TE  0x08000000
 #define CU  0x10000000
+#define INTERRUPTSON 0x00000004 
 
 /* Set quantum value to 5 miliseconds and pseudo clock interval */
 #define INTERVAL 100000
