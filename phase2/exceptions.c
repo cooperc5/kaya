@@ -98,7 +98,7 @@ HIDDEN void terminateProcess() {
 	scheduler();
 }
 
-HIDDEN void copyState(state_PTR oldState, state_PTR destState){
+void copyState(state_PTR oldState, state_PTR destState){
 	/* copy over all state fields */
 	destState->s_asid = oldState->s_asid;
 	destState->s_cause = oldState->s_cause;
@@ -167,7 +167,7 @@ HIDDEN void passUpOrDie(int callNumber, state_PTR old) {
     terminateProcess(); /* new area was already written to, kill the process */
 }
 
-static void waitForIODevice(state_PTR state) {
+HIDDEN void waitForIODevice(state_PTR state) {
     /* get the line number in the a1 register */
     int line = state->s_a1;
     /* get the device number in the a2 register */
@@ -197,7 +197,7 @@ static void waitForIODevice(state_PTR state) {
     LDST(state);
 }
 
-static int findSemaphore(int line, int device, int flag) {
+HIDDEN int findSemaphore(int line, int device, int flag) {
     int offset;
     /* terminal read? */
     if(flag == TRUE) {
@@ -211,7 +211,7 @@ static int findSemaphore(int line, int device, int flag) {
     return (DEVPERINT * offset) + device;
 }
 
- static void waitForClock(state_PTR state) {
+HIDDEN void waitForClock(state_PTR state) {
      /* get the semaphore index of the clock timer */
      int *sem = (int*) &(devSemdTable[CLOCK]);
      /* perform a passeren operation */
@@ -228,7 +228,7 @@ static int findSemaphore(int line, int device, int flag) {
      scheduler();
 }
 
- static void getCpuTime(state_PTR state) {
+HIDDEN void getCpuTime(state_PTR state) {
         /* copy the state from the old syscall into the pcb_t's state */
         copyState(state, &(currentProcess->p_s));
         /* the clock can be started by placing a new value in the 
@@ -246,7 +246,7 @@ static int findSemaphore(int line, int device, int flag) {
         LDST(&(currentProcess->p_s));
 }
 
-static void specifyExceptionsStateVector(state_PTR state) {
+HIDDEN void specifyExceptionsStateVector(state_PTR state) {
     /* get the exception from the a1 register */
     switch(state->s_a1) {
         /* check if the specified exception is a translation 
@@ -287,7 +287,7 @@ static void specifyExceptionsStateVector(state_PTR state) {
     LDST(state);
 }
 
-static void passeren(state_PTR state) {
+HIDDEN void passeren(state_PTR state) {
     /* get the semaphore in the s_a1 */
     int *sem = (int*) state->s_a1;
     /* decrement teh semaphore */
@@ -311,7 +311,7 @@ static void passeren(state_PTR state) {
     LDST(state);
 }
 
-static void verhogen(state_PTR state) {
+HIDDEN void verhogen(state_PTR state) {
     /* the semaphore is placed in the a1 register of the 
     passed in state_t */
     int* sem = (int*) state->s_a1;

@@ -5,5 +5,5 @@
     extern void syscallHandler();
     extern void programTrapHandler();
     extern void translationLookasideBufferHandler();
-    extern void copyState(state_PTR from, state_PTR to);
+    extern void copyState(state_PTR oldState, state_PTR destState);
 #endif
