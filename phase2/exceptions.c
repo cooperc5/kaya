@@ -17,20 +17,14 @@ void syscallHandler() {
 	
 	unsigned int sysCallNumber = oldState->s_a0;
 	unsigned int status = oldState->s_status;
-	int userMode = false;
+	int userMode = FALSE;
 
-	if((status & KUp) != ALLOFF) {
+	if((status & KUp) != OFF) {
         /* in user mode */
         userMode = TRUE;
 	}
 
-	if (sysCallNumber > 8 && sysCallNumber >= 255 && sysCallNumber != 0) {
-		passUpOrDie(SYSTRAP, oldState); /* implement */
-	}
-
-	/* check for kernel mode before case statement */
-	if (userMode) { /* checks KUp bit */
-		/* user mode so generate priveleged instruction program trap */
+	if (sysCallNumber > 8 && sysCallNumber >= 255 && userMode) {
 		state_PTR oldProgram = (state_PTR) PRGMTRAPOLDAREA;
 		copyState(oldState, oldProgram);
 		/* change ExcCode in cause register */
