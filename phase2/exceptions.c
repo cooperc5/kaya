@@ -17,13 +17,19 @@ void syscallHandler() {
 	
 	unsigned int sysCallNumber = oldState->s_a0;
 	unsigned int status = oldState->s_status;
+	int userMode = false;
+
+	if((status & KUp) != ALLOFF) {
+        /* in user mode */
+        userMode = TRUE;
+	}
 
 	if (sysCallNumber > 8 && sysCallNumber >= 255 && sysCallNumber != 0) {
 		passUpOrDie(SYSTRAP, oldState); /* implement */
 	}
 
 	/* check for kernel mode before case statement */
-	if (CHECK_BIT(status, 3)) { /* checks KUp bit */
+	if (userMode) { /* checks KUp bit */
 		/* user mode so generate priveleged instruction program trap */
 		state_PTR oldProgram = (state_PTR) PRGMTRAPOLDAREA;
 		copyState(oldState, oldProgram);
@@ -33,7 +39,7 @@ void syscallHandler() {
 		oldCause = (oldCause | EXC_RI);
 		oldProgram->s_cause	= oldCause;
 
-		programTrapHandler(); /*fix args later */
+		programTrapHandler();
 		return;
 	}
 	/* kernel mode is on, handle syscalls 1-8 */

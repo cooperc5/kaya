@@ -11,25 +11,18 @@ cpu_t currentTOD;
 
 extern void scheduler() {
 	if (emptyProcQ(readyQueue)) {
+		currentProcess = NULL;
 		if (processCount == 0) {
-			currentProcess = NULL;
-        	/* do we have any job to do? */
-       		if(processCount == 0) {
-            /* nothing to do */
             	HALT();
-			}
-			return;
 		}
 		if (processCount > 0) {
 			if (softBlockedCount == 0) {
 				PANIC();
-				return;
 			}
 			if (softBlockedCount > 0) {
 				/* modify status */
 				setSTATUS(getSTATUS() | OFF | INTERRUPTSON | IEc | IM);
 				WAIT();
-				return;
 			}
 		}
 	
