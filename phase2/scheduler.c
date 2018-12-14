@@ -25,7 +25,7 @@ extern void scheduler() {
 				PANIC();
 				return;
 			}
-			if (softBlockCount > 0) {
+			if (softBlockedCount > 0) {
 				/* modify status */
 				setSTATUS(getSTATUS() | OFF | INTERRUPTSON | IEc | IM);
 				WAIT();
