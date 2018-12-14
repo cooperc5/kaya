@@ -78,7 +78,7 @@ static void exitInterruptHandler(cpu_t startTime) {
         cpu_t elapsedTime = (endTime - startTime);
         startTOD = startTOD + elapsedTime;
         /* copy the state from the old interrupt area to the current state */
-        copyState(oldInterrupt, &(currentProcess->p_state));
+        copyState(oldInterrupt, &(currentProcess->p_s));
         /* insert the new process in the ready queue */
         insertProcQ(&(readyQueue), currentProcess);
     }
@@ -131,7 +131,7 @@ static void intervalTimerHandler(cpu_t startTime, cpu_t endTime) {
     LDIT(INTERVAL);
     /* get the index of the last device in the device 
     semaphore list - which is the interval timer */
-    int *sem = &(semdTable[CLOCK]);
+    int *sem = &(devSemdTable[CLOCK]);
     /* reset the semaphore */
     (*sem) = 0;
     /* get all of the blocked devices*/
@@ -192,8 +192,8 @@ void interruptHandler() {
     STCK function */
     STCK(startTime);
     /* start both device and line number at 0 */
-    int deviceNumber = 0;
-    int lineNumber = 0;
+    int device = 0;
+    int line = 0;
     /* initialize the index */
     int i = 0;
     /* what happened? */
@@ -212,48 +212,48 @@ void interruptHandler() {
         lineNumber = getLineNumber(cause);
     }
     /* get the device number */
-    deviceNumber = getDeviceNumber(lineNumber);
+    deviceNumber = getDeviceNumber(line);
     /* now that we have the device number and the line number, we compute the well-known
     address in memory */
-    devReg = (device_PTR) (INTDEVREG + ((lineNumber - NOSEM) * DEVREGSIZE * DEVPERINT) + (deviceNumber * DEVREGSIZE));
+    devReg = (device_PTR) (INTDEVREG + ((line - NOSEM) * DEVREGSIZE * DEVPERINT) + (device * DEVREGSIZE));
     /* assume the receive is true */
     int receive = TRUE;
     /* if the interrupting line is a terminal interupt,
     get the semaphore index */
-    if(lineNumber == TERMINT) {
+    if(line == TERMINT) {
         /* check if the transmission status is recieve command */
         if((devReg->t_transm_status & FULLBYTE) != READY) {
             /* get the index - where NOSEM is the offset of -3 */
-            i = DEVPERINT * (lineNumber - NOSEM) + deviceNumber;
+            i = DEVPERINT * (lineNumber - NOSEM) + device;
             /* mark the flag as false - turn off recieve */
             receive = FALSE;
         } else {
             /* get the index - where NOSEM is the offset of -3 */
-            i = DEVPERINT * ((lineNumber - NOSEM) + 1) + deviceNumber;
+            i = DEVPERINT * ((line - NOSEM) + 1) + device;
         }
     } else {
         /* the interrupt is not a terminal interrupt, so 
         simply compute the index */
-        i = DEVPERINT * (lineNumber - NOSEM) + deviceNumber;
+        i = DEVPERINT * (lineNumber - NOSEM) + device;
     }
-    int *semaphore = &(semdTable[i]);
+    int *sem = &(devSemdTable[i]);
     /* perform a V operation on the semaphore */
-    (*semaphore)++;
-    if((*semaphore) <= 0) {
+    (*sem)++;
+    if((*sem) <= 0) {
         /* release synchronization on the process */
-        pcb_PTR p = removeBlocked(semaphore);
+        pcb_PTR p = removeBlocked(sem);
         if (p != NULL) {
             /* implement the handshake */
-            if(receive && (lineNumber == TERMINT)) {
-                p->p_state.s_v0 = devReg->t_recv_status;
+            if(receive && (line == TERMINT)) {
+                p->p_s.s_v0 = devReg->t_recv_status;
                 /* the reception has been acknowledged */
                 devReg->t_recv_command = ACK;
-            } else if(!receive && (lineNumber == TERMINT)) {
-                p->p_state.s_v0 = devReg->t_transm_status;
+            } else if(!receive && (line == TERMINT)) {
+                p->p_s.s_v0 = devReg->t_transm_status;
                 /* the transmission has been acknowledged */
                 devReg->t_transm_command = ACK;
             } else {
-                p->p_state.s_v0 = devReg->d_status;
+                p->p_s.s_v0 = devReg->d_status;
                 /* the command has been acknowledged */
                 devReg->d_command = ACK;
             }

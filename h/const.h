@@ -36,6 +36,7 @@
 #define OFF             0
 #define HIDDEN		static
 #define EOS		'\0'
+#define FULLBYTE 0x000000FF
 
 #define NULL ((void *)0xFFFFFFFF)
 
@@ -89,7 +90,7 @@
 #define INTERRUPTOLDAREA 0x20000000
 
 /* clock sem number */
-#define CLOCK MAXSEMALLOC - 1
+#define CLOCK MAXDEVSEM - 1
 
 /* devices */
 #define FIRST 0x00000001
@@ -110,13 +111,23 @@
 #define SYSTRAP		2
 #define TRAPTYPES	3
 
+/*bit maps */
+#define INTDEVREG 0x10000050
+
+/*masks*/
+#define IPMASK 8
+
 
 /* device interrupts */
-#define DISKINT		3
-#define TAPEINT 	4
-#define NETWINT 	5
-#define PRNTINT 	6
-#define TERMINT		7
+#define NOSEM 3
+#define DISKINT	3
+#define TAPEINT 4
+#define NETWINT 5
+#define PRNTINT 6
+#define TERMINT	7
+#define DEVINTNUM 5
+#define DEVPERINT 8
+#define SEMDEVICE (DEVPERINT - NOSEM)
 
 #define DEVREGLEN	4	/* device register field length in bytes & regs per dev */
 #define DEVREGSIZE	16 	/* device register size in bytes */

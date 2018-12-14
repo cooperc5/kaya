@@ -18,7 +18,7 @@ typedef struct {
 	unsigned int d_command;
 	unsigned int d_data0;
 	unsigned int d_dataa1;
-} device_t;
+} device_t, *device_PTR;
 
 #define t_recv_status	d_status
 #define t_recv_command d_command
@@ -107,6 +107,7 @@ typedef struct pcb_t {
     state_PTR oldTLB;
     state_PTR newTLB;
     int* p_semAdd;
+    cpu_t p_time;
 }  pcb_t, *pcb_PTR;
 
 
