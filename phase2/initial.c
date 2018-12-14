@@ -80,7 +80,7 @@ int main() {
     currentProcess = allocPcb();
 
     currentProcess->p_s.s_sp = (RAMTOP - PAGESIZE);
-    currentProcess->p_s.s_pc = currentProcess->p_state.s_t9 = (memaddr) test; /*insert p2test function here*/
+    currentProcess->p_s.s_pc = currentProcess->p_s.s_t9 = (memaddr) test; /*insert p2test function here*/
     /* initialize the status */
     currentProcess->p_s.s_status = (OFF | INTERRUPTSON | IM | TE);
 
