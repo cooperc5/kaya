@@ -80,7 +80,7 @@ int main() {
     currentProcess->p_s.s_sp = (RAMTOP - PAGESIZE);
     currentProcess->p_s.s_pc = (memaddr) test; /*insert p2test function here*/
     /* initialize the status */
-    currentProcess->p_s.s_status = (ALLOFF | INTERRUPTSON | IM | TE);
+    currentProcess->p_s.s_status = (OFF | INTERRUPTSON | IM | TE);
     insertProcQ(&(readyQueue), currentProcess);
 
     processCount++;
