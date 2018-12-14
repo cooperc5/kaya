@@ -234,7 +234,7 @@ void interruptHandler() {
     } else {
         /* the interrupt is not a terminal interrupt, so 
         simply compute the index */
-        i = DEVPERINT * (lineNumber - NOSEM) + device;
+        i = DEVPERINT * (line - NOSEM) + device;
     }
     int *sem = &(devSemdTable[i]);
     /* perform a V operation on the semaphore */
