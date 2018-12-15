@@ -108,6 +108,7 @@ typedef struct pcb_t {
     state_PTR newTLB;
     int* p_semAdd;
     cpu_t p_time;
+    int waitState;
 }  pcb_t, *pcb_PTR;
 
 
