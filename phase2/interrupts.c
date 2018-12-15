@@ -28,37 +28,110 @@
 /******************************************** HELPER FUNCTIONS  *********************************************************/
 /************************************************************************************************************************/
 
-/*
-* Function: Get Device Number 
-* The interrupting devices bit map IDBM is a read-only 5 word 
-* area that indicates which devices have an interrupt pending.
-* When bit i in word j is equal to 1, the device associated with
-* that corresponding bit has an interrupt pending. Since the word
-* will be supplied prior to this function call, this will simply 
-* calculate the device number by looping through each bit
-*/
-static int getDeviceNumber(int lineNumber) {
-    /* get the address of the device bit map. Per secion 5.2.4 of pops, the 
-    physical address of the bit map is 0x1000003C. When bit i is in word j is 
-    set to one then device i attached to interrupt line j + 3 */
-    devregarea_PTR temp = (devregarea_PTR) RAMBASEADDR;
-    unsigned int deviceBitMap = temp->interrupt_dev[(lineNumber - NOSEM)];
-    /* start at the first device */
-    unsigned int interrupt = FIRST;
-    int device;
-    /* for searching for the device number */
-    /* search each 8 bits */
-    for(device = 0; device < DEVPERINT; device++) {
-        if((deviceBitMap & interrupt) != 0) {
-            /* the candidate has been found */
-            break;
-        } else {
-            /* find the next candidate */
-            interrupt = interrupt << 1;
+HIDDEN int getLine(unsigned int cause) {
+    int found = FALSE;
+    int line = -1;
+    while (!found && line < 7) {
+        line++;
+        if (CHECK_BIT(cause, line + 8)) {
+            found == TRUE;
         }
     }
-    /* we found the device numner */
+    return line;
+}
+
+HIDDEN int getDevice(int line) {
+    devregarea_PTR bus = (devregarea_PTR) RAMBASEADDR;
+    unsigned int deviceBitMap = bus->interrupt_dev[(lineNumber - NOSEM)];
+    /* now that we have the device bit map for the appropriate line, check for the lowest order on bit */
+    int found = FALSE;
+    int device = -1;
+    while (!found && bit < 7) {
+        device++;
+        if (CHECK_BIT(cause, device)) {
+            found == TRUE;
+        }
+    }
     return device;
+}
+
+void interrputHandler() {
+    state_PTR oldState = (state_PTR) INTERRUPTOLDAREA;
+    unsigned int cause = oldState->s_cause;
+    int line = getLine(cause);
+    int device = getDevice(line);
+    int devSemdIndex;
+
+    cpu_t startTime;
+    cpu_t endTime;
+    STCK(startTime);
+
+    device_PTR deviceRegister = (device_PTR) (INTDEVREG + ((line - NOSEM) * DEVREGSIZE * DEVPERINT) + (device * DEVREGSIZE))
+
+    int receiving = TRUE; /* assume receiving if terminal */
+
+    if (line == 7) {
+        /* check if the transmission status is recieve command */
+        if((devReg->t_transm_status & FULLBYTE) != READY) {
+            /* get sem index for transmitting */
+            devSemdIndex = DEVPERINT * (line - MAINDEVOFFSET) + device;
+            /* mark the flag as false - turn off recieve */
+            receiving = FALSE;
+        } else {
+            /* receiving sem index */
+            devSemdIndex = DEVPERINT * ((line - MAINDEVOFFSET) + 1) + device;
+        }
+    }
+
+    if (line < 8 && line > 2) {
+        
+    
+        if (line < 7 && line > 2) {
+            devSemdIndex = DEVPERINT * (line - MAINDEVOFFSET) + device;
+        }
+
+        devSemdTable[devSemdIndex]++;
+
+        if (devSemdTable[devSemdIndex] <= 0) {
+            pcb_PTR p = removeBlocked(&(devSemdTable[devSemdIndex]));
+            if(receiving && (line == 7)) {
+                p->p_s.s_v0 = deviceRegister->t_recv_status;
+                /* ack the receive */
+                devReg->t_recv_command = ACK;
+            } else if(!receiving && (line == 7)) {
+                p->p_s.s_v0 = deviceRegister->t_transm_status;
+                /* ack the transmission */
+                devReg->t_transm_command = ACK;
+            } else {
+                p->p_s.s_v0 = deviceRegister->d_status;
+                /* ack normal dev */
+                devReg->d_command = ACK;
+            }
+            
+            
+            insertProcQ(&(readyQueue), p);
+            softBlockedCount--;
+            state_PTR oldInt = (state_PTR) INTERRUPTOLDAREA;
+            /* if previous process was in a wait state, call the scheduler here 
+            if (waitState) {      but how the hell do i figure out if it's a wait state? can't find wait bit!!!
+                scheduler();
+            } */
+            LDST(oldInt);
+        }
+        
+    }
+    if (line == 0) {
+        PANIC();
+    }
+    if (line == 1) {
+        exitInterruptHandler(startTime);
+    }
+    if (line == 2) {
+        intervalTimerHandler(startTime, endTime);
+    }
+
+    exitInterruptHandler(startTime);
+    
 }
 
 /*
@@ -84,30 +157,6 @@ static void exitInterruptHandler(cpu_t startTime) {
     }
     /* get a new process */
     scheduler();
-}
-
-/*
-* Function: Get line number
-* Gets the line number of the outstanding device interrupt; only finds
-* the line number for devices with semaphore's associated with them, (i.e. lines 3-7). 
-*/
-static int getLineNumber(unsigned int cause) {
-    /* declare the array of possible line numbers */
-    unsigned int lineNumbers[SEMDEVICE] = {FOURTH, FIFTH, SIXTH, SEVENTH, EIGHTH};
-    /* declare the array of possible line numbers */
-    unsigned int devices[SEMDEVICE] = {DISKINT, TAPEINT, NETWINT, PRNTINT, TERMINT};
-    /* what was our line number? */
-    int lineNum = 0;
-    int i;
-    /* loop through each possible device */
-    for (i = 0; i < SEMDEVICE; i++) {
-        if(cause & lineNumbers[i] != 0) {
-            /* match the line number with the device */
-            lineNum = devices[i];
-        }
-    }
-    /* we found it */
-    return lineNum;
 }
 
 /************************************************************************************************************************/
@@ -158,111 +207,5 @@ static void intervalTimerHandler(cpu_t startTime, cpu_t endTime) {
     exitInterruptHandler(startTime);
 }
 
-/*
-* Function: The interrupt handler 
-* Will handler interrupts that are caused by various interrupting devices, such 
-* as terminal devices, printer devices, network devices (though this is not implemented
-* at this phase, tape devices, and disk devices. Additionally, it handles interrupts from a 
-* psuedo-clock timer to signify a process' specific quantum is over. The interval timer handler 
-* will analyze the contents of the cause register to see what happened - i.e. what is the cause line
-* number for this particular interrupt. Based on the cause, if it is line number is 0, it is an 
-* inter-processor interrupt and handled with a kernel panic - since it is not supported in Kaya.
-* If the line number is the processor local timer, the interrupt handler will then exit the 
-* interrupt handler by entering the exit handler - which will then get a new job from the scheduler. If
-* the interrupting line was the interal timer bus, then it will be passed to the interval timer handler 
-* which will treat the interrupt as a pseudo-clock tick. Finally, for all other interrupts, their 
-* line and device numbers are computed through subroutines. From their line and device numbers, their 
-* synchronization semaphore index is calculated as well as their device register area. For terminal
-* interrupts, a distinction must be made between a send command and a recieve command. Finally, once
-* these have been computed, the interupt handler will perform a V operation on that semaphore and 
-* implement the umps2 interrupt-driven handshake protocol 
-*/
-void interruptHandler() {
-    /* the old interrupt area */
-    state_PTR oldInterupt = (state_PTR) INTERRUPTOLDAREA;
-    /* the device register */
-    device_PTR devReg;
-    /* the cause for the interrupt is stored in the cause register */
-    unsigned int cause = (((oldInterupt->s_cause) & IM) >> IPMASK);
-    /* the start timer */
-    cpu_t startTime;
-    /* the end time */
-    cpu_t endTime;
-    /* start the clock by placing a new value in the ROM-dedicated 
-    STCK function */
-    STCK(startTime);
-    /* start both device and line number at 0 */
-    int device = 0;
-    int line = 0;
-    /* initialize the index */
-    int i = 0;
-    /* what happened? */
-    if ((cause & FIRST) != 0) {
-        /* the cause should not be 0 - since it is not supported 
-        in Kaya */
-        PANIC();
-    } else if((cause & SECOND) != 0) {
-        /* processor local timer */
-        exitInterruptHandler(startTime);
-    } else if((cause & THIRD) != 0) {
-        /* go to the interval timer handler */
-        intervalTimerHandler(startTime, endTime);
-    } else {
-        /* if it was not lines 0-2, get the line number */
-        line = getLineNumber(cause);
-    }
-    /* get the device number */
-    device = getDeviceNumber(line);
-    /* now that we have the device number and the line number, we compute the well-known
-    address in memory */
-    devReg = (device_PTR) (INTDEVREG + ((line - NOSEM) * DEVREGSIZE * DEVPERINT) + (device * DEVREGSIZE));
-    /* assume the receive is true */
-    int receive = TRUE;
-    /* if the interrupting line is a terminal interupt,
-    get the semaphore index */
-    if(line == TERMINT) {
-        /* check if the transmission status is recieve command */
-        if((devReg->t_transm_status & FULLBYTE) != READY) {
-            /* get the index - where NOSEM is the offset of -3 */
-            i = DEVPERINT * (line - NOSEM) + device;
-            /* mark the flag as false - turn off recieve */
-            receive = FALSE;
-        } else {
-            /* get the index - where NOSEM is the offset of -3 */
-            i = DEVPERINT * ((line - NOSEM) + 1) + device;
-        }
-    } else {
-        /* the interrupt is not a terminal interrupt, so 
-        simply compute the index */
-        i = DEVPERINT * (line - NOSEM) + device;
-    }
-    int *sem = &(devSemdTable[i]);
-    /* perform a V operation on the semaphore */
-    (*sem)++;
-    if((*sem) <= 0) {
-        /* release synchronization on the process */
-        pcb_PTR p = removeBlocked(sem);
-        if (p != NULL) {
-            /* implement the handshake */
-            if(receive && (line == TERMINT)) {
-                p->p_s.s_v0 = devReg->t_recv_status;
-                /* the reception has been acknowledged */
-                devReg->t_recv_command = ACK;
-            } else if(!receive && (line == TERMINT)) {
-                p->p_s.s_v0 = devReg->t_transm_status;
-                /* the transmission has been acknowledged */
-                devReg->t_transm_command = ACK;
-            } else {
-                p->p_s.s_v0 = devReg->d_status;
-                /* the command has been acknowledged */
-                devReg->d_command = ACK;
-            }
-            /* we have one less process wairing */
-            softBlockedCount--;
-            /* insert into the ready queue */
-            insertProcQ(&(readyQueue), p);
-        }
-    }
-    /* exit the interrupt handler */
-    exitInterruptHandler(startTime);
-}
+
+

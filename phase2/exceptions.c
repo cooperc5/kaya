@@ -31,6 +31,11 @@ void syscallHandler() {
         userMode = TRUE;
 	}
 	debugA(33);
+
+	if (sysCallNumber >= 9 && sysCallNumber <= 255) {
+		passUpOrDie( sysCallNumber, oldState);
+	}
+
 	if (sysCallNumber <= 8 && sysCallNumber > 0 && userMode) {
 		state_PTR oldProgram = (state_PTR) PRGMTRAPOLDAREA;
 		copyState(oldState, oldProgram);
@@ -43,61 +48,61 @@ void syscallHandler() {
 		programTrapHandler();
 		return;
 	}
+	else if (sysCallNumber <= 8 && sysCallNumber > 0 && !userMode) {
 	/* kernel mode is on, handle syscalls 1-8 */
-	switch (sysCallNumber) {
-        case CREATEPROCESS: /* SYSCALL 1 */
-            createProcess(oldState);
-            break;
-        case TERMINATEPROCESS: /* SYSCALL 2 */
-            terminateProcess();
-            break;
-        case VERHOGEN: /* SYSCALL 3 */
-            verhogen(oldState);
-            break;
-        case PASSEREN: /* SYSCALL 4 */
-            passeren(oldState);
-            break;
-        case SPECIFYEXCEPTIONSTATEVECTOR: /* SYSCALL 5 */
-            specifyExceptionsStateVector(oldState);
-            break;
-        case GETCPUTIME: /* SYSCALL 6 */
-            getCpuTime(oldState);
-            break;
-        case WAITFORCLOCK: /* SYSCALL 7 */
-            waitForClock(oldState);
-            break;
-        case WAITFORIODEVICE: /* SYSCALL 8 */
-            waitForIODevice(oldState);
-            break;
-        default:
-			passUpOrDie(SYSTRAP, oldState);
+		switch (sysCallNumber) {
+        	case CREATEPROCESS: /* SYSCALL 1 */
+            	createProcess(oldState);
+            	break;
+        	case TERMINATEPROCESS: /* SYSCALL 2 */
+            	terminateProcess();
+            	break;
+        	case VERHOGEN: /* SYSCALL 3 */
+            	verhogen(oldState);
+            	break;
+        	case PASSEREN: /* SYSCALL 4 */
+            	passeren(oldState);
+            	break;
+        	case SPECIFYEXCEPTIONSTATEVECTOR: /* SYSCALL 5 */
+            	specifyExceptionsStateVector(oldState);
+            	break;
+        	case GETCPUTIME: /* SYSCALL 6 */
+            	getCpuTime(oldState);
+           		break;
+        	case WAITFORCLOCK: /* SYSCALL 7 */
+            	waitForClock(oldState);
+            	break;
+        	case WAITFORIODEVICE: /* SYSCALL 8 */
+            	waitForIODevice(oldState);
+            	break;
+        	default:
+				passUpOrDie(SYSTRAP, oldState);
+		}
 	}
 }
 
 HIDDEN void createProcess(state_PTR callerState) {
 	state_PTR newState = (state_PTR) callerState->s_a1;
 	pcb_PTR newPcb = allocPcb();
+	
+
 	if (newPcb == NULL) { /* no free pcbs */
 		currentProcess->p_s.s_v0 = -1;
 		LDST(callerState);
-		return;
 	}
+	processCount++;
 	copyState(newState, &(newPcb->p_s));
 	insertChild(currentProcess, newPcb);
 	insertProcQ(&(readyQueue), newPcb);
 
 	currentProcess->p_s.s_v0 = 0;
-	processCount++;
+	
 
 	LDST(callerState);
 }
 
 HIDDEN void terminateProcess() {
-	if (!emptyChild(currentProcess)) {
-		terminateProgeny(currentProcess);
-	}
-
-	outChild(currentProcess);
+	death(currentProcess);
 	
 	freePcb(currentProcess);
 	processCount--;
@@ -118,55 +123,50 @@ void copyState(state_PTR oldState, state_PTR destState){
 	}
 }
 
-HIDDEN void terminateProgeny(pcb_PTR p) {
+HIDDEN void death(pcb_PTR p) {
 	while (!emptyChild(p)) {
-			terminateProgeny(removeChild(p));
-			processCount--;
+			death(removeChild(p));
 	}
-	/* n-1 processes left */
+
+	if (p == currentProcess) {
+		outChild(p);
+		return;
+	}
     
-    /* check of the pcb_t has a semaphore address */
+	if (p->p_semAdd == NULL) { /* p is on readyQ */
+		outProcQ(&(readyQueue), p);
+		return;
+	}
+
     if (p->p_semAdd != NULL) {
-        /* get the semaphore */
         int* sem = p->p_semAdd;
-        /* call outblocked on the pcb_t */
         outBlocked(p);
-        /* if the semaphore greater than 0 and less than 48, then
-        it is a device semapore */
+        /* is it blocked on a device semaphore? */
         if(sem >= &(devSemdTable[0]) && sem <= &(devSemdTable[CLOCK])) {
-            /* we have 1 less waiting process */
             softBlockedCount--;
         } else {
-            /* not a device semaphore */
+            /* on normal sem */
             (*sem)++;
         }
-    } else if(p == currentProcess){
-         /* yank the process from the parent */
-         outChild(currentProcess);
-    } else {
-         /* not on asl nor currP so must be on ready q */
-         outProcQ(&(readyQueue), p);
     }
-	freePcb(p);
-	processCount--;
 }
 
 HIDDEN void passUpOrDie(int callNumber, state_PTR old) {
     switch(callNumber) { 
         case SYSTRAP:
-            if(currentProcess->newSys != NULL) { /* newSYS hasn't been written to previously */
+            if(currentProcess->newSys != NULL) { /* newSYS has been written to previously */
                 copyState(old, currentProcess->oldSys);
                 LDST(currentProcess->newSys);
             }
             break;
         case TLBTRAP:
-            if(currentProcess->newTLB != NULL) { /* newTLB hasn't been written to previously */
+            if(currentProcess->newTLB != NULL) { /* newTLB has been written to previously */
                 copyState(old, currentProcess->oldTLB);
                 LDST(currentProcess->newTLB);
             }
             break;
         case PROGTRAP: 
-            if(currentProcess->newPgm != NULL) { /* newPGM hasn't been written to previously */
+            if(currentProcess->newPgm != NULL) { /* newPGM has been written to previously */
                 copyState(old, currentProcess->oldPgm);
                 LDST(currentProcess->newPgm);
             break;
@@ -203,6 +203,26 @@ HIDDEN void waitForIODevice(state_PTR state) {
     }
     /* if no P operation can be done, simply context switch */
     LDST(state);
+}
+
+HIDDEN void waitForIODevice(state_PTR state) {
+	int line = state->s_a1;
+    int device = state->s_a2; 
+
+	if (line > 2 && line < 7) { /* normal devices */
+        int devSemIndex = DEVPERINT * (line - MAINDEVOFFSET) + device;
+
+        devSemdTable[devSemIndex]--;
+
+        if (devSemdTable[devSemIndex] < 0) {
+            insertBlocked(&(devSemdTable[devSemIndex]), currentProcess);
+            softBlockedCount++;
+            scheduler();
+        }
+        else {
+        	LDST(state);
+        }
+    }
 }
 
 HIDDEN int findSemaphore(int line, int device, int flag) {

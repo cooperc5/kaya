@@ -119,7 +119,7 @@
 
 
 /* device interrupts */
-#define NOSEM 3
+#define MAINDEVOFFSET 3
 #define DISKINT	3
 #define TAPEINT 4
 #define NETWINT 5
@@ -127,7 +127,7 @@
 #define TERMINT	7
 #define DEVINTNUM 5
 #define DEVPERINT 8
-#define SEMDEVICE (DEVPERINT - NOSEM)
+#define SEMDEVICE (DEVPERINT - MAINDEVOFFSET)
 
 #define DEVREGLEN	4	/* device register field length in bytes & regs per dev */
 #define DEVREGSIZE	16 	/* device register size in bytes */
