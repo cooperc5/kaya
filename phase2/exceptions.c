@@ -176,46 +176,24 @@ HIDDEN void passUpOrDie(int callNumber, state_PTR old) {
 }
 
 HIDDEN void waitForIODevice(state_PTR state) {
-    /* get the line from a1 */
-    int line = state->s_a1;
-    /* get the device number in the a2 register */
-    int device = state->s_a2; 
-    /* set the terminal read/write flag to be the contents of a3 */
-    int read = (state->s_a3 == TRUE);
-    /* is the device in the range of 3-8? if not kill the process */
-    if(line > TERMINT || line < DISKINT) {
-        terminateProcess();
-    }
-    /* find the corresponding semaphore for the device */
-    int i = findSemaphore(line, device, read);
-    int* sem = &(devSemdTable[i]);
-    /* perform a P operation */
-    (*sem)--;
-    if((*sem) < 0) {
-        /* block the current process */
-        insertBlocked(sem, currentProcess);
-        /* copy the old syscall area to the new pcb_t state_t */
-        copyState(state, &(currentProcess->p_s));
-        /* we have 1 more waiting process */
-        softBlockedCount++;
-        /* get a new process */
-        scheduler();
-    }
-    /* if no P operation can be done, simply context switch */
-    LDST(state);
-}
-
-HIDDEN void waitForIODevice(state_PTR state) {
 	int line = state->s_a1;
     int device = state->s_a2; 
-
-	if (line > 2 && line < 7) { /* normal devices */
-        int devSemIndex = DEVPERINT * (line - MAINDEVOFFSET) + device;
+    int read = (state->s_a3 == TRUE);
+    int devSemIndex;
+	if (line > 2 && line < 8) { /* normal devices */
+        
+        if (line != 7) {
+        	devSemIndex = DEVPERINT * (line - MAINDEVOFFSET) + device;
+        }
+        else {
+        	devSemIndex = DEVPERINT * (line - MAINDEVOFFSET + read) + device;
+        }
 
         devSemdTable[devSemIndex]--;
 
         if (devSemdTable[devSemIndex] < 0) {
             insertBlocked(&(devSemdTable[devSemIndex]), currentProcess);
+            copyState(state, &(currentProcess->p_s));
             softBlockedCount++;
             scheduler();
         }
@@ -223,26 +201,15 @@ HIDDEN void waitForIODevice(state_PTR state) {
         	LDST(state);
         }
     }
-}
-
-HIDDEN int findSemaphore(int line, int device, int flag) {
-    int offset;
-    /* terminal read? */
-    if(flag == TRUE) {
-        /* index with the flag offset */
-        offset = (line - NOSEM + flag); 
-    } else {
-        /* index no flag offset */
-        offset = (line - NOSEM);
+    else {
+    	terminateProcess();
     }
-    /* get the index from the offset and the deice number */
-    return (DEVPERINT * offset) + device;
 }
 
 HIDDEN void waitForClock(state_PTR state) {
      /* get the semaphore index of the clock timer */
      int *sem = (int*) &(devSemdTable[CLOCK]);
-     /* perform a passeren operation */
+     /* p the clock sem */
      (*sem)--;
      if ((*sem) < 0)
      {
