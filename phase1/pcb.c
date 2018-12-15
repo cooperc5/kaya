@@ -51,14 +51,14 @@ void cleanPcb(pcb_PTR p) {
 	p->p_sib = NULL;
 	p->p_prevSib = NULL;
 	p->p_semAdd = NULL;
-	oldSys = NULL;
-    newSys = NULL;
-    oldPgm = NULL;
-    newPgm = NULL;
-    oldTLB = NULL;
-    newTLB = NULL;
-    p_time = NULL;
-    waitState = NULL; 
+	p->oldSys = NULL;
+    p->newSys = NULL;
+    p->oldPgm = NULL;
+    p->newPgm = NULL;
+    p->oldTLB = NULL;
+    p->newTLB = NULL;
+    p->p_time = NULL;
+    p->waitState = NULL; 
 }
 
 /*
