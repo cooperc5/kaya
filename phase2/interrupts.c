@@ -55,7 +55,7 @@ HIDDEN int getDevice(int line) {
     return device;
 }
 
-void interrputHandler() {
+void interruptHandler() {
     state_PTR oldState = (state_PTR) INTERRUPTOLDAREA;
     unsigned int cause = oldState->s_cause;
     int line = getLine(cause);
