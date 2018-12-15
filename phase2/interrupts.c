@@ -99,17 +99,51 @@ void interruptHandler() {
         
     }
     if (line == 0) {
-        
+        PANIC();
     }
     if (line == 1) {
-        
+        handleTime(startTime);
     }
     if (line == 2) {
-        
+        intervalTimerHandler(startTime, endTime);
     }
 
+    handleTime(startTime);
     
-    
+}
+
+HIDDEN void intervalTimerHandler(cpu_t startTime, cpu_t endTime) {
+    LDIT(INTERVAL);
+    int *sem = &(devSemdTable[CLOCK]);
+    (*sem) = 0;
+    pcb_PTR blocked = headBlocked(sem);
+    while(blocked != NULL) {
+        pcb_PTR p = removeBlocked(sem);
+        STCK(endTime);
+        if(p != NULL) {
+            insertProcQ(&(readyQueue), p);
+            cpu_t elapsedTime = (endTime - startTime);
+            (p->p_time) = (p->p_time) + elapsedTime;
+            softBlockedCount--;
+            blocked = headBlocked(sem);
+        }
+    }
+    handleTime(startTime);
+}
+
+HIDDEN void handleTime(cpu_t startTime) {
+    if(currentProcess != NULL) {
+        state_PTR oldInterrupt = (memaddr)INTERRUPTOLDAREA;
+        cpu_t endTime = STCK(endTime);
+        cpu_t elapsedTime = (endTime - startTime);
+        startTOD = startTOD + elapsedTime;
+        
+        /* copyState(oldInterrupt, &(currentProcess->p_s)); */
+
+        insertProcQ(&(readyQueue), currentProcess);
+    }
+    /* scheduler(); */
+    LDST(oldInterrupt); /* something about checking a wait bit and instead calling scheduler */
 }
 
 
