@@ -133,7 +133,7 @@ HIDDEN void intervalTimerHandler(cpu_t startTime, cpu_t endTime) {
 
 HIDDEN void handleTime(cpu_t startTime) {
     if(currentProcess != NULL) {
-        state_PTR oldInterrupt = (memaddr) INTERRUPTOLDAREA;
+        state_PTR oldInterrupt = (state_PTR) INTERRUPTOLDAREA;
         cpu_t endTime = STCK(endTime);
         cpu_t elapsedTime = (endTime - startTime);
         startTOD = startTOD + elapsedTime;
