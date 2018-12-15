@@ -42,13 +42,13 @@ HIDDEN int getLine(unsigned int cause) {
 
 HIDDEN int getDevice(int line) {
     devregarea_PTR bus = (devregarea_PTR) RAMBASEADDR;
-    unsigned int deviceBitMap = bus->interrupt_dev[(lineNumber - NOSEM)];
+    unsigned int deviceBitMap = bus->interrupt_dev[(line - MAINDEVOFFSET)];
     /* now that we have the device bit map for the appropriate line, check for the lowest order on bit */
     int found = FALSE;
     int device = -1;
-    while (!found && bit < 7) {
+    while (!found && device < 7) {
         device++;
-        if (CHECK_BIT(cause, device)) {
+        if (CHECK_BIT(deviceBitMap, device)) {
             found == TRUE;
         }
     }
@@ -66,13 +66,13 @@ void interrputHandler() {
     cpu_t endTime;
     STCK(startTime);
 
-    device_PTR deviceRegister = (device_PTR) (INTDEVREG + ((line - NOSEM) * DEVREGSIZE * DEVPERINT) + (device * DEVREGSIZE))
+    device_PTR deviceRegister = (device_PTR) (INTDEVREG + ((line - MAINDEVOFFSET) * DEVREGSIZE * DEVPERINT) + (device * DEVREGSIZE));
 
     int receiving = TRUE; /* assume receiving if terminal */
 
     if (line == 7) {
         /* check if the transmission status is recieve command */
-        if((devReg->t_transm_status & FULLBYTE) != READY) {
+        if((deviceRegister->t_transm_status & FULLBYTE) != READY) {
             /* get sem index for transmitting */
             devSemdIndex = DEVPERINT * (line - MAINDEVOFFSET) + device;
             /* mark the flag as false - turn off recieve */
