@@ -327,7 +327,7 @@ HIDDEN void verhogen(state_PTR callerState) {
         }
     }
     /* perform a context switch on the requested process */
-    LDST(state);
+    LDST(callerState);
 }
 
 void programTrapHandler() {
