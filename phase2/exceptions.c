@@ -1,8 +1,5 @@
-/* exceptions .c */
-
 #include "../h/const.h"
 #include "../h/types.h"
-/* e files to include */
 #include "../e/initial.e"
 #include "../e/scheduler.e"
 #include "../e/interrupts.e"
@@ -207,7 +204,7 @@ HIDDEN void waitForIODevice(state_PTR state) {
 }
 
 HIDDEN void waitForClock(state_PTR state) {
-     /* get the semaphore index of the clock timer */
+     /* get clock sem index */
      int *sem = (int*) &(devSemdTable[CLOCK]);
      /* p the clock sem */
      (*sem)--;
@@ -215,134 +212,90 @@ HIDDEN void waitForClock(state_PTR state) {
      {
          /* block the process */
          insertBlocked(sem, currentProcess);
-         /* copy from the old syscall area into the new pcb_state */
-         copyState(state, &(currentProcess->p_s));
-         /* increment the number of waiting processes */
          softBlockedCount++;
      }
      scheduler();
 }
 
 HIDDEN void getCpuTime(state_PTR state) {
-        /* copy the state from the old syscall into the pcb_t's state */
         copyState(state, &(currentProcess->p_s));
-        /* the clock can be started by placing a new value in the 
-        STCK ROM function */
         cpu_t stopTOD;
-        /* start the clock  for the stop */ 
         STCK(stopTOD);
-        /* get the time that has passed */
         cpu_t elapsedTime = stopTOD - startTOD;
         currentProcess->p_time = (currentProcess->p_time) + elapsedTime;
-        /* store the state in the pcb_t's v0 register */
         currentProcess->p_s.s_v0 = currentProcess->p_time;
-        /* start the clock for the start TOD */
         STCK(startTOD);
         LDST(&(currentProcess->p_s));
 }
 
 HIDDEN void specifyExceptionsStateVector(state_PTR state) {
-    /* get the exception from the a1 register */
     switch(state->s_a1) {
-        /* check if the specified exception is a translation 
-        look aside buffer exception */
         case TLBTRAP:
-            /* if the new tlb has already been set up,
-            kill the process */
             if(currentProcess->newTLB != NULL) {
                 terminateProcess();
             }
-            /* store the syscall area state in the new tlb */
-            currentProcess->newTLB = (state_PTR) state->s_a3;
-            /* store the syscall area state in the old tlb*/
+
             currentProcess->oldTLB = (state_PTR) state->s_a2;
+            currentProcess->newTLB = (state_PTR) state->s_a3;
             break;
+
         case PROGTRAP:
-            /* if the new pgm has already been set up,
-            kill the process */
             if(currentProcess->newPgm != NULL) {
                 terminateProcess();
             }
-            /* store the syscall area state in the new pgm */
-            currentProcess->newPgm = (state_PTR) state->s_a3;
+
             currentProcess->oldPgm = (state_PTR) state->s_a2;
+            currentProcess->newPgm = (state_PTR) state->s_a3;
             break;
+
         case SYSTRAP:
-            /* if the new systrap has already been set up,
-            kill the process */
             if(currentProcess->newSys != NULL) {
                 terminateProcess();
             }
-            /* store the syscall area state in the new pgm */
-            currentProcess->newSys = (state_PTR) state->s_a3;
-            /* store the syscall area state in the old pgm*/
+
             currentProcess->oldSys = (state_PTR) state->s_a2;
+            currentProcess->newSys = (state_PTR) state->s_a3;
             break;
+
     }
     LDST(state);
 }
 
 HIDDEN void passeren(state_PTR state) {
-    /* get the semaphore in the s_a1 */
     int *sem = (int*) state->s_a1;
-    /* decrement teh semaphore */
-    (*(sem))--;
-    if ((*(sem)) < 0) {
+    (*sem)--;
+    if (*(sem) < 0) {
         cpu_t stopTOD;
         STCK(stopTOD);
-        /*Store elapsed time*/
         int elapsedTime = stopTOD - startTOD;
-        /* add the elapsed time to the current process */
         currentProcess->p_time = currentProcess->p_time + elapsedTime;
-        /* copy from the old syscall area to the new process's state */
-        copyState(state, &(currentProcess->p_s));
-        /* the process now must wait */
         insertBlocked(sem, currentProcess);
-        /* get a new job */
         scheduler();
     }
-    /* if the semaphore is not less than zero, do not 
-    block the process, just load the new state */
     LDST(state);
 }
 
 HIDDEN void verhogen(state_PTR callerState) {
-    /* the semaphore is placed in the a1 register of the 
-    passed in state_t */
     int* sem = (int*) callerState->s_a1;
-    /* increment the semaphore - the V operation on 
-    the semaphore */
-    (*(sem))++;
-    /* if the synchronization semaphore description is <= 0, 
-    then it will remove the process from the blocked processes 
-    and place it in the ready queue - which synchronizes the processes */
+
+    (*sem)++;
+
     if(*(sem) <= 0) {
-        /* unblock the next process */
         pcb_PTR newProcess = removeBlocked(sem);
-        /* the current process is then placed in the ready 
-        queue - baring its not null */
         if(newProcess != NULL) {
-            /* place it in the ready queue */
             insertProcQ(&(readyQueue), newProcess);
         }
     }
-    /* perform a context switch on the requested process */
     LDST(callerState);
 }
 
 void programTrapHandler() {
-    /* get the area in memory */
     state_PTR oldState = (state_PTR) PRGMTRAPOLDAREA;
-    /* pass up the process to its appropriate handler
-    or kill it */
     passUpOrDie(PROGTRAP, oldState);
 }
 
 void translationLookasideBufferHandler() {
-    /* get the area in memory */
     state_PTR oldState = (state_PTR)TBLMGMTOLDAREA;
-    /* pass up the process to its appropriate handler
-    or kill it */
     passUpOrDie(TLBTRAP, oldState);
 }
 

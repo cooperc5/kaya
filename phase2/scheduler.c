@@ -47,10 +47,10 @@ extern void scheduler() {
             /* set the quantum */
             setTIMER(QUANTUM);
         }
-        /* grab a job */
+        /* pop a job */
         currentProcess = removeProcQ(&(readyQueue));
         STCK(startTOD);
-        /* perform a context switch */
+        
         LDST(&(currentProcess->p_s));
 	}
 }
