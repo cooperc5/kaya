@@ -105,26 +105,33 @@ void interruptHandler() {
         handleTime(startTime);
     }
     if (line == 2) {
-        intervalTimerHandler(startTime, endTime);
+        psuedoClockHandler(startTime, endTime);
     }
 
     handleTime(startTime);
     
 }
 
-HIDDEN void intervalTimerHandler(cpu_t startTime, cpu_t endTime) {
+HIDDEN void psuedoClockHandler(cpu_t startTime, cpu_t endTime) {
     LDIT(INTERVAL);
+
     int *sem = &(devSemdTable[CLOCK]);
     (*sem) = 0;
+
     pcb_PTR blocked = headBlocked(sem);
     while(blocked != NULL) {
+
         pcb_PTR p = removeBlocked(sem);
         STCK(endTime);
+
         if(p != NULL) {
-            insertProcQ(&(readyQueue), p);
+            softBlockedCount--;
+
             cpu_t elapsedTime = (endTime - startTime);
             (p->p_time) = (p->p_time) + elapsedTime;
-            softBlockedCount--;
+
+            insertProcQ(&(readyQueue), p);
+            
             blocked = headBlocked(sem);
         }
     }
@@ -139,8 +146,6 @@ HIDDEN void handleTime(cpu_t startTime) {
         cpu_t endTime = STCK(endTime);
         cpu_t elapsedTime = (endTime - startTime);
         startTOD = startTOD + elapsedTime;
-        
-        /* copyState(oldState, &(currentProcess->p_s)); */
 
         insertProcQ(&(readyQueue), currentProcess);
     }
