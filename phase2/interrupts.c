@@ -97,15 +97,15 @@ void interrputHandler() {
             if(receiving && (line == 7)) {
                 p->p_s.s_v0 = deviceRegister->t_recv_status;
                 /* ack the receive */
-                devReg->t_recv_command = ACK;
+                deviceRegister->t_recv_command = ACK;
             } else if(!receiving && (line == 7)) {
                 p->p_s.s_v0 = deviceRegister->t_transm_status;
                 /* ack the transmission */
-                devReg->t_transm_command = ACK;
+                deviceRegister->t_transm_command = ACK;
             } else {
                 p->p_s.s_v0 = deviceRegister->d_status;
                 /* ack normal dev */
-                devReg->d_command = ACK;
+                deviceRegister->d_command = ACK;
             }
             
             
