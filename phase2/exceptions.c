@@ -7,15 +7,15 @@
 #include "../e/asl.e"
 #include "/usr/local/include/umps2/umps/libumps.e"
 
-void debugA(int a){
+void debugExceptions(int a){
 	int i;
 	i = 0;
 }
 
 void syscallHandler() {
-	debugA(19);
+	debugExceptions(16);
 	state_PTR oldState = (state_PTR) SYSCALLOLDAREA;
-	debugA(21);
+	
 	oldState->s_pc = oldState->s_pc + 4;
 	
 	unsigned int sysCallNumber = oldState->s_a0;
@@ -27,7 +27,6 @@ void syscallHandler() {
         /* in user mode */
         userMode = TRUE;
 	}
-	debugA(33);
 
 	if (sysCallNumber >= 9 && sysCallNumber <= 255) {
 		passUpOrDie( sysCallNumber, oldState);
@@ -55,6 +54,7 @@ void syscallHandler() {
             	terminateProcess();
             	break;
         	case VERHOGEN: /* SYSCALL 3 */
+            	debugExceptions(57);
             	verhogen(oldState);
             	break;
         	case PASSEREN: /* SYSCALL 4 */
@@ -286,6 +286,7 @@ HIDDEN void verhogen(state_PTR callerState) {
             insertProcQ(&(readyQueue), newProcess);
         }
     }
+    debugExceptions(289);
     LDST(callerState);
 }
 

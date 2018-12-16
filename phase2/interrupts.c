@@ -149,7 +149,7 @@ HIDDEN void handleTime(cpu_t startTime) {
 
         insertProcQ(&(readyQueue), currentProcess);
     }
-    /* scheduler(); */
+    /* scheduler(); ??? */
     LDST(oldState); /* something about checking a wait bit and instead calling scheduler */
 }
 
