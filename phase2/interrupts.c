@@ -89,12 +89,13 @@ void interruptHandler() {
             
             insertProcQ(&(readyQueue), p);
             softBlockedCount--;
-            state_PTR oldInt = (state_PTR) INTERRUPTOLDAREA;
+            /* state_PTR oldInt = (state_PTR) INTERRUPTOLDAREA; */
             /* if previous process was in a wait state, call the scheduler here 
             if (waitState) {      but how the hell do i figure out if it's a wait state? can't find wait bit!!!
                 scheduler();
             } */
-            LDST(oldInt);
+            /* LDST(oldInt); */
+            /* scheduler(); */
         }
         
     }
@@ -149,8 +150,7 @@ HIDDEN void handleTime(cpu_t startTime) {
 
         insertProcQ(&(readyQueue), currentProcess);
     }
-    /* scheduler(); ??? */
-    LDST(oldState); /* something about checking a wait bit and instead calling scheduler */
+    scheduler();
 }
 
 
