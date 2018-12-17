@@ -7,7 +7,10 @@
 #include "../e/scheduler.e"
 #include "/usr/local/include/umps2/umps/libumps.e"
 
-
+void debugInterrupt(int a) {
+    int i;
+    i = 0;
+}
 HIDDEN int getLine(unsigned int cause) {
     int found = FALSE;
     int line = -1;
@@ -140,13 +143,17 @@ HIDDEN void psuedoClockHandler(cpu_t startTime, cpu_t endTime) {
 }
 
 HIDDEN void handleTime(cpu_t startTime) {
+    debugInterrupt(146);
     state_PTR oldState = (state_PTR) INTERRUPTOLDAREA;
 
     if(currentProcess != NULL) {
         
-        cpu_t endTime = STCK(endTime);
+        cpu_t endTime;
+        STCK(endTime);
         cpu_t elapsedTime = (endTime - startTime);
         startTOD = startTOD + elapsedTime;
+
+        copyState(oldState, &(currentProcess->p_s));
 
         insertProcQ(&(readyQueue), currentProcess);
     }
