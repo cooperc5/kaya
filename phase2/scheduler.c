@@ -29,7 +29,7 @@ void invokeScheduler() {
                 /* are we waiting for I/O? */
             } else if(softBlockedCount > 0) {
                 /* enable interrupts for the next job */
-                setSTATUS(getSTATUS() | ALLOFF | INTERRUPTSON | IEc | IM);
+                setSTATUS(getSTATUS() | OFF | INTERRUPTSON | IEc | IM);
                 /* wait */
                 WAIT();
             }
