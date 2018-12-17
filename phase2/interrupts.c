@@ -63,7 +63,7 @@ static void intervalTimerHandler(cpu_t startTime, cpu_t endTime) {
 
 
 void interruptHandler() {
-    state_PTR oldInterupt = (state_PTR) INTRUPTOLDAREA;
+    state_PTR oldInterupt = (state_PTR) INTERRUPTOLDAREA;
     device_PTR devReg;
     unsigned int cause = (((oldInterupt->s_cause) & IM) >> IPMASK);
     cpu_t startTime;
