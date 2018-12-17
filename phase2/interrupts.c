@@ -7,56 +7,6 @@
 #include "../e/scheduler.e"
 #include "/usr/local/include/umps2/umps/libumps.e"
 
-static int getDeviceNumber(int lineNumber) {
-    /* get the address of the device bit map. Per secion 5.2.4 of pops, the 
-    physical address of the bit map is 0x1000003C. When bit i is in word j is 
-    set to one then device i attached to interrupt line j + 3 */
-    devregarea_PTR temp = (devregarea_PTR) RAMBASEADDR;
-    unsigned int deviceBitMap = temp->interrupt_dev[(lineNumber - MAINDEVOFFSET)];
-    /* start at the first device */
-    unsigned int candidate = FIRST;
-    int deviceNumber;
-    /* for searching for the device number */
-    /* search each 8 bits */
-    for(deviceNumber = 0; deviceNumber < DEVPERINT; deviceNumber++) {
-        if((deviceBitMap & candidate) != 0) {
-            /* the candidate has been found */
-            break;
-        } else {
-            /* find the next candidate */
-            candidate = candidate << 1;
-        }
-    }
-    /* we found the device numner */
-    return deviceNumber;
-}
-
-/*
-* Function: Exit Interrupt Handler
-* Ensures that the current process will not be charged for time spent the 
-* in the interrupt handler - baring that there is a current process. I
-*/
-static void exitInterruptHandler(cpu_t startTime) {
-    /* do we have a current process? */
-    if(currentProcess != NULL) {
-        /* get the old interrupt area */
-        state_PTR oldInterrupt = (memaddr)INTERRUPTOLDAREA;
-        cpu_t endTime;
-        /* start the clock by placing a new value in 
-        the ROM supported STCK function */
-        STCK(endTime);
-        /* find the startedTOD */
-        cpu_t elapsedTime = (endTime - startTime);
-        startTOD = startTOD + elapsedTime;
-        /* copy the state from the old interrupt area to the current state */
-        copyState(oldInterrupt, &(currentProcess->p_s));
-        /* insert the new pricess in the ready queue */
-        insertProcQ(&(readyQueue), currentProcess);
-    }
-    /* get a new process */
-    invokeScheduler();
-}
-
 
 
 
