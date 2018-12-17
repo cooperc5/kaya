@@ -9,7 +9,7 @@ pcb_PTR runningProcess;
 cpu_t startTOD;
 cpu_t currentTOD;
 
-void invokeScheduler() {
+void scheduler() {
     /* are there any ready jobs? */
     if(emptyProcQ(readyQueue)) {
         /* we have no running process */
