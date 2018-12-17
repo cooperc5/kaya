@@ -42,7 +42,7 @@ static void exitInterruptHandler(cpu_t startTime) {
         copyState(oldInterrupt, &(currentProcess->p_s));
         insertProcQ(&(readyQueue), currentProcess);
     }
-    invokeScheduler();
+    scheduler();
 }
 
 static int getLineNumber(unsigned int cause) {

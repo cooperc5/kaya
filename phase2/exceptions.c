@@ -160,7 +160,7 @@ static void waitForIODevice(state_PTR state) {
         /* copy the old syscall area to the new pcb_t state_t */
         copyState(state, &(currentProcess->p_s));
         /* get a new process */
-        invokeScheduler();
+        scheduler();
     }
     /* if no P operation can be done, simply context switch */
     contextSwitch(state);
@@ -186,7 +186,7 @@ static void waitForIODevice(state_PTR state) {
          /* increment the number of waiting processes */
          softBlockedCount++;
      }
-     invokeScheduler();
+     scheduler();
 }
 
 /* 
@@ -284,7 +284,7 @@ static void passeren(state_PTR state) {
         /* the process now must wait */
         insertBlocked(semaphore, currentProcess);
         /* get a new job */
-        invokeScheduler();
+        scheduler();
     }
     /* if the semaphore is not less than zero, do not 
     block the process, just load the new state */
@@ -349,7 +349,7 @@ static void terminateProcess() {
     processes */
     currentProcess = NULL;
     /* reschedule a new process */
-    invokeScheduler();
+    scheduler();
 }
 
 /*
