@@ -12,7 +12,7 @@ static int getDeviceNumber(int lineNumber) {
     physical address of the bit map is 0x1000003C. When bit i is in word j is 
     set to one then device i attached to interrupt line j + 3 */
     devregarea_PTR temp = (devregarea_PTR) RAMBASEADDR;
-    unsigned int deviceBitMap = temp->interrupt_dev[(lineNumber - NOSEM)];
+    unsigned int deviceBitMap = temp->interrupt_dev[(lineNumber - MAINDEVOFFSET)];
     /* start at the first device */
     unsigned int candidate = FIRST;
     int deviceNumber;
@@ -40,7 +40,7 @@ static void exitInterruptHandler(cpu_t startTime) {
     /* do we have a current process? */
     if(currentProcess != NULL) {
         /* get the old interrupt area */
-        state_PTR oldInterrupt = (memaddr)INTRUPTOLDAREA;
+        state_PTR oldInterrupt = (memaddr)INTERRUPTOLDAREA;
         cpu_t endTime;
         /* start the clock by placing a new value in 
         the ROM supported STCK function */
@@ -49,7 +49,7 @@ static void exitInterruptHandler(cpu_t startTime) {
         cpu_t elapsedTime = (endTime - startTime);
         startTOD = startTOD + elapsedTime;
         /* copy the state from the old interrupt area to the current state */
-        copyState(oldInterrupt, &(currentProcess->p_state));
+        copyState(oldInterrupt, &(currentProcess->p_s));
         /* insert the new pricess in the ready queue */
         insertProcQ(&(readyQueue), currentProcess);
     }
