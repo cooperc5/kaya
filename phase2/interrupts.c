@@ -13,7 +13,37 @@
 
 
 
+static int getDeviceNumber(int lineNumber) {
 
+    devregarea_PTR temp = (devregarea_PTR) RAMBASEADDR;
+    unsigned int deviceBitMap = temp->interrupt_dev[(lineNumber - MAINDEVOFFSET)];
+    unsigned int candidate = FIRST;
+    int deviceNumber;
+
+    for(deviceNumber = 0; deviceNumber < DEVPERINT; deviceNumber++) {
+        if((deviceBitMap & candidate) != 0) {
+            break;
+        } else {
+            candidate = candidate << 1;
+        }
+    }
+    return deviceNumber;
+}
+
+
+static void exitInterruptHandler(cpu_t startTime) {
+    if(currentProcess != NULL) {
+        state_PTR oldInterrupt = (memaddr)INTERRUPTOLDAREA;
+        cpu_t endTime;
+
+        STCK(endTime);
+        cpu_t elapsedTime = (endTime - startTime);
+        startTOD = startTOD + elapsedTime;
+        copyState(oldInterrupt, &(currentProcess->p_s));
+        insertProcQ(&(readyQueue), currentProcess);
+    }
+    invokeScheduler();
+}
 
 static int getLineNumber(unsigned int cause) {
     
