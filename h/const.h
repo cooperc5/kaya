@@ -37,6 +37,7 @@
 #define HIDDEN		static
 #define EOS		'\0'
 #define FULLBYTE 0x000000FF
+#define RESERVED 0x00000028
 
 #define NULL ((void *)0xFFFFFFFF)
 
@@ -153,6 +154,9 @@
 /* device common COMMAND codes */
 #define RESET		0
 #define ACK		1
+
+#define SUCCESS 0
+#define FAILURE -1
 
 /* operations */
 #define	MIN(A,B)	((A) < (B) ? A : B)

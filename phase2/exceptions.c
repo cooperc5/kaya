@@ -55,14 +55,14 @@ static void passUpOrDie(int callNumber, state_PTR old) {
             break;
         /* Translation Lookaside Buffer Exception */
         case TLBTRAP:
-            if(currentProcess->newTlb == NULL) {
+            if(currentProcess->newTLB == NULL) {
                 /* no - it dies */
                 terminateProcess();
             } else {
                 /* pass it up to the appropriate handler */
                 copyState(old, currentProcess->oldTLB);
                 /* context switch */
-                contextSwitch(currentProcess->newTlb);
+                contextSwitch(currentProcess->newTLB);
             }
             break;
         /* Program Trap Exception */
@@ -226,11 +226,11 @@ static void specifyExceptionsStateVector(state_PTR state) {
         case TLBTRAP:
             /* if the new tlb has already been set up,
             kill the process */
-            if(currentProcess->newTlb != NULL) {
+            if(currentProcess->newTLB != NULL) {
                 terminateProcess();
             }
             /* store the syscall area state in the new tlb */
-            currentProcess->newTlb = (state_PTR) state->s_a3;
+            currentProcess->newTLB = (state_PTR) state->s_a3;
             /* store the syscall area state in the old tlb*/
             currentProcess->oldTLB = (state_PTR) state->s_a2;
             break;
@@ -548,7 +548,7 @@ void copyState(state_PTR from, state_PTR to) {
     /* get the status regitser */
     unsigned int status = caller->s_status;
     /* check if the system is in user or kernel mode */
-    if((status & KUp) != ALLOFF) {
+    if((status & KUp) != OFF) {
         /* in user mode */
         userMode = TRUE;
     }
