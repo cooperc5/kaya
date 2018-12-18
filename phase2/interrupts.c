@@ -46,7 +46,7 @@ static int getDeviceNumber(int lineNumber) {
     physical address of the bit map is 0x1000003C. When bit i is in word j is 
     set to one then device i attached to interrupt line j + 3 */
     devregarea_PTR temp = (devregarea_PTR) RAMBASEADDR;
-    unsigned int deviceBitMap = temp->interrupt_dev[(lineNumber - MAINDEVSEM)];
+    unsigned int deviceBitMap = temp->interrupt_dev[(lineNumber - MAINDEVOFFSET)];
     /* start at the first device */
     unsigned int candidate = FIRST;
     int deviceNumber;
@@ -74,7 +74,7 @@ static void exitInterruptHandler(cpu_t startTime) {
     /* do we have a current process? */
     if(currentProcess != NULL) {
         /* get the old interrupt area */
-        state_PTR oldInterrupt = (memaddr)INTRUPTOLDAREA;
+        state_PTR oldInterrupt = (memaddr)INTERRUPTOLDAREA;
         cpu_t endTime;
         /* start the clock by placing a new value in 
         the ROM supported STCK function */
@@ -184,7 +184,7 @@ static void intervalTimerHandler(cpu_t startTime, cpu_t endTime) {
 */
 void interruptHandler() {
     /* the old interrupt area */
-    state_PTR oldInterupt = (state_PTR) INTRUPTOLDAREA;
+    state_PTR oldInterupt = (state_PTR) INTERRUPTOLDAREA;
     /* the device register */
     device_PTR devReg;
     /* the cause for the interrupt is stored in the cause register */
@@ -220,7 +220,7 @@ void interruptHandler() {
     deviceNumber = getDeviceNumber(lineNumber);
     /* now that we have the device number and the line number, we compute the well-known
     address in memory */
-    devReg = (device_PTR) (INTDEVREG + ((lineNumber - MAINDEVSEM) * DEVREGSIZE * DEVPERINT) + (deviceNumber * DEVREGSIZE));
+    devReg = (device_PTR) (INTDEVREG + ((lineNumber - MAINDEVOFFSET) * DEVREGSIZE * DEVPERINT) + (deviceNumber * DEVREGSIZE));
     /* assume the receive is true */
     int receive = TRUE;
     /* if the interrupting line is a terminal interupt,
@@ -228,18 +228,18 @@ void interruptHandler() {
     if(lineNumber == TERMINT) {
         /* check if the transmission status is recieve command */
         if((devReg->t_transm_status & FULLBYTE) != READY) {
-            /* get the index - where MAINDEVSEM is the offset of -3 */
-            i = DEVPERINT * (lineNumber - MAINDEVSEM) + deviceNumber;
+            /* get the index - where MAINDEVOFFSET is the offset of -3 */
+            i = DEVPERINT * (lineNumber - MAINDEVOFFSET) + deviceNumber;
             /* mark the flag as false - turn off recieve */
             receive = FALSE;
         } else {
-            /* get the index - where MAINDEVSEM is the offset of -3 */
-            i = DEVPERINT * ((lineNumber - MAINDEVSEM) + 1) + deviceNumber;
+            /* get the index - where MAINDEVOFFSET is the offset of -3 */
+            i = DEVPERINT * ((lineNumber - MAINDEVOFFSET) + 1) + deviceNumber;
         }
     } else {
         /* the interrupt is not a terminal interrupt, so 
         simply compute the index */
-        i = DEVPERINT * (lineNumber - MAINDEVSEM) + deviceNumber;
+        i = DEVPERINT * (lineNumber - MAINDEVOFFSET) + deviceNumber;
     }
     int *semaphore = &(devSemdTable[i]);
     /* perform a V operation on the semaphore */
