@@ -9,9 +9,10 @@
 
 
 typedef signed int cpu_t;
+
+
 typedef unsigned int memaddr;
 
-/* device type */
 typedef struct {
 	unsigned int d_status;
 	unsigned int d_command;
@@ -27,7 +28,6 @@ typedef struct {
 #define DEVINTNUM 5
 #define DEVPERINT 8
 
-/* device register area */
 typedef struct {
 	unsigned int rambase;
 	unsigned int ramsize;
@@ -44,9 +44,8 @@ typedef struct {
 	device_t   devreg[DEVINTNUM * DEVPERINT];
 } devregarea_t, *devregarea_PTR;
 
+
 #define STATEREGNUM	31
-
-
 
 /* state */
 typedef struct state_t {
@@ -91,94 +90,33 @@ typedef struct state_t {
 #define s_LO	s_reg[30]
 
 
+
 /* process table entry type */
 typedef struct pcb_t {
-	/* queue relationship */
-	/* the next pcb_t */
     struct pcb_t* p_next;
-	/* the previous pcb_t */
     struct pcb_t* p_prev;
-	/* the pcb_t parent */
     struct pcb_t* p_prnt;
-	/* the pcb_t child */
-	struct pcb_t* p_child;
-	/* the pcb_t next sibiling */
-	struct pcb_t* p_sib;
-	/* the pcb_t previous sibiling */
-	struct pcb_t* p_prevSib;
-	/* processor state */
-    state_t p_s;
-	/* the semaphore address */
+		struct pcb_t* p_child;
+		struct pcb_t* p_sib;
+		struct pcb_t* p_prevSib;
+    state_t	p_s;
+    state_PTR oldSys;
+    state_PTR newSys;
+    state_PTR oldPgm;
+    state_PTR newPgm;
+    state_PTR oldTLB;
+    state_PTR newTLB;
     int* p_semAdd;
-	/* old syscall */
-	state_t* oldSys;
-	/* new sys */
-	state_t* newSys;
-	/* old program trap */
-	state_t* oldPgm;
-	/* new program trap */
-	state_t* newPgm;
-	/* old tlb */
-	state_t* oldTLB;
-	/* new tlb */
-	state_t* newTLB;
-	/* start time of day */
-	cpu_t p_time; 
-	/* * */
+    cpu_t p_time;
 }  pcb_t, *pcb_PTR;
+
 
 /* semaphore table entry type */
 typedef struct semd_t {
-	/* the next semaphore address */
-	struct semd_t* s_next;
-	/* the previous semaphore address */
-	struct semd_t* s_prev;
-	/* the semaphore address */
-	int* s_semAdd;
-	/* the associated process queue */
-	pcb_t* s_procQ;
-	/* * */
-} semd_t, *semd_PTR;
+	struct semd_t *s_next;
+	int *s_semAdd;
+	pcb_t *s_procQ;
+}  semd_t, *semd_PTR;
 
-/* page table entry type */
-typedef struct pteEntry_t {
-	unsigned int entryHI;
-	unsigned int entryLO;
-} pteEntry_t, *pteEntry_PTR;
-
-/* page table type */
-typedef struct pte_t {
-	int header;
-	pteEntry_t pteTable[32];	
-} pte_t;
-
-/* the page table entry reserved for the OS */
-typedef struct pteOS_t {
-	int header;
-	pteEntry_t pteTable[64];
-} pteOS_t;
-
-/* the segment table for support of three segments */
-typedef struct segt_t {
-	pte_t* kUseg2;
-	pte_t* kUseg3;
-	pteOS_t* kSegOS;
-} segt_t, *segt_PTR;
-
-/* type for the swap poo; */
-typedef struct swapPool_t {
-	int ASID;
-	int segmentNumber;
-	int pageNumber;
-	pteEntry_t* pageTableEntry;
-} swapPool_t;
-
-/* tproc type */
-typedef struct Tproc_t {
-	int Tp_sem;
-	int diskAddr;
-	pte_t Tp_pte;
-	state_t Tnew_trap[3];
-	state_t Told_trap[3];
-} Tproc_t, *Tproc_PTR;
 #endif
+
