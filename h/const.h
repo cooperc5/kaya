@@ -51,9 +51,9 @@
 #define OFF 0x00000000
 #define IEc 0x00000001
 /*#define KUc 0x00000002
-#define IEp 0x00000004
+#define IEp 0x00000004 */
 #define KUp 0x00000008
-#define IEo 0x00000010
+/*#define IEo 0x00000010
 #define KUo 0x00000020 */
 #define IM  0x0000FF00
 /*#define BEV 0x00400000
