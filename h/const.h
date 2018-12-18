@@ -54,15 +54,15 @@
 #define IEp 0x00000004
 #define KUp 0x00000008
 #define IEo 0x00000010
-#define KUo 0x00000020
+#define KUo 0x00000020 */
 #define IM  0x0000FF00
-#define BEV 0x00400000
+/*#define BEV 0x00400000
 #define VMc 0x01000000
 #define VMp 0x02000000
-#define VMo 0x04000000
+#define VMo 0x04000000 */
 #define TE  0x08000000
-#define CU  0x10000000
-#define INTERRUPTSON 0x00000004 */
+/* #define CU  0x10000000 */
+#define INTERRUPTSON 0x00000004
 
 /* Set quantum value to 5 miliseconds and pseudo clock interval */
 #define INTERVAL 100000
