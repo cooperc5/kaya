@@ -44,10 +44,10 @@ static int findSemaphoreIndex(int lineNumber, int deviceNumber, int flag) {
     /* is it a terminal read? */
     if(flag == TRUE) {
         /* compute the index with the flag ALLZEROESset */
-        ALLZEROESset = (lineNumber - MAINDEVALLZEROESSET + flag); 
+        ALLZEROESset = (lineNumber - MAINDEVOFFSET + flag); 
     } else {
         /* compute the index without the flag ALLZEROESset */
-        ALLZEROESset = (lineNumber - MAINDEVALLZEROESSET);
+        ALLZEROESset = (lineNumber - MAINDEVOFFSET);
     }
     /* get the index from the ALLZEROESset and the deice number */
     int calculation = (DEVPERINT * ALLZEROESset) + deviceNumber;
