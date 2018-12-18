@@ -89,6 +89,6 @@ void scheduler() {
         currentProcess = removeProcQ(&(readyQueue));
         STCK(startTOD);
         /* perform a context switch */
-        LDST(&(currentProcess->p_state));
+        LDST(&(currentProcess->p_s));
     }
 }
