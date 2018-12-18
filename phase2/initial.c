@@ -93,7 +93,7 @@ int main() {
     /* next, we address each semaphore in the ASL free list to have 
     an address of 0 */
     int i;    
-    for(i = 0; i < MAXSEMALLOC; i++) {
+    for(i = 0; i < MAXDEVSEM; i++) {
         /* intialize every semaphore to have a starting address of 0 */
         devSemdTable[i] = 0;
     }
@@ -104,10 +104,10 @@ int main() {
     initASL();
     /* allocated a process - just like before, we must now allocate memory according`ly */
     currentProcess = allocPcb();
-    currentProcess->p_state.s_sp = (RAMTOP - PAGESIZE);
-    currentProcess->p_state.s_pc = (memaddr) test; /* TODO IMPLEMENT TEST CODE */
-    currentProcess->p_state.s_t9 = (memaddr) test; /* TODO IMPLEMENT TEST CODE */
-    currentProcess->p_state.s_status = (OFF | INTERRUPTSON | IM | TE);
+    currentProcess->p_s.s_sp = (RAMTOP - PAGESIZE);
+    currentProcess->p_s.s_pc = (memaddr) test; /* TODO IMPLEMENT TEST CODE */
+    currentProcess->p_s.s_t9 = (memaddr) test; /* TODO IMPLEMENT TEST CODE */
+    currentProcess->p_s.s_status = (OFF | INTERRUPTSON | IM | TE);
     /* increment the process count, since we have one fired up */
     processCount++;
     /* insert the newly allocated process into the ready queue */
