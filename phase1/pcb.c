@@ -58,7 +58,6 @@ void cleanPcb(pcb_PTR p) {
     p->oldTLB = NULL;
     p->newTLB = NULL;
     p->p_time = NULL;
-    p->waitState = NULL; 
 }
 
 /*
