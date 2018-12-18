@@ -81,14 +81,14 @@ static void passUpOrDie(int callNumber, state_PTR old) {
             break;
         /* Translation Lookaside Buffer Exception */
         case TLBTRAP:
-            if(currentProcess->newTlb == NULL) {
+            if(currentProcess->newTLB == NULL) {
                 /* no - it dies */
                 terminateProcess();
             } else {
                 /* pass it up to the appropriate handler */
-                copyState(old, currentProcess->oldTlb);
+                copyState(old, currentProcess->oldTLB);
                 /* context switch */
-                contextSwitch(currentProcess->newTlb);
+                contextSwitch(currentProcess->newTLB);
             }
             break;
         /* Program Trap Exception */
@@ -281,13 +281,13 @@ static void specifyExceptionsStateVector(state_PTR state) {
         case TLBTRAP:
             /* if the new tlb has already been set up,
             kill the process */
-            if(currentProcess->newTlb != NULL) {
+            if(currentProcess->newTLB != NULL) {
                 terminateProcess();
             }
             /* store the syscall area state in the new tlb */
-            currentProcess->newTlb = (state_PTR) state->s_a3;
+            currentProcess->newTLB = (state_PTR) state->s_a3;
             /* store the syscall area state in the old tlb*/
-            currentProcess->oldTlb = (state_PTR) state->s_a2;
+            currentProcess->oldTLB = (state_PTR) state->s_a2;
             break;
         case PROGTRAP:
             /* if the new pgm has already been set up,
