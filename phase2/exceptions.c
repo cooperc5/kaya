@@ -13,7 +13,6 @@ void debugExceptions(int a){
 }
 
 void syscallHandler() {
-    debugExceptions(16);
     state_PTR oldState = (state_PTR) SYSCALLOLDAREA;
     
     oldState->s_pc = oldState->s_pc + 4;
@@ -43,7 +42,6 @@ void syscallHandler() {
                 terminateProcess();
                 break;
             case VERHOGEN: /* SYSCALL 3 */
-                debugExceptions(57);
                 verhogen(oldState);
                 break;
             case PASSEREN: /* SYSCALL 4 */
@@ -172,7 +170,6 @@ HIDDEN void passUpOrDie(int callNumber, state_PTR old) {
 }
 
 HIDDEN void waitForIODevice(state_PTR state) {
-    debugExceptions(176);
     int line = state->s_a1;
     int device = state->s_a2; 
     int read = (state->s_a3 == TRUE);
@@ -281,7 +278,6 @@ HIDDEN void verhogen(state_PTR callerState) {
             insertProcQ(&(readyQueue), newProcess);
         }
     }
-    debugExceptions(289);
     LDST(callerState);
 }
 
