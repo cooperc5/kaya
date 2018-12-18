@@ -15,7 +15,6 @@ void debugScheduler(int a) {
 }
 
 extern void scheduler() {
-    debugScheduler(13);
     if (emptyProcQ(readyQueue)) {
         currentProcess = NULL;
         if (processCount == 0) {

@@ -30,7 +30,6 @@ void debuginitial(int a) {
 	i=0;
 }
 int main() {
-	debuginitial(33);
 	devregarea_PTR bus = (devregarea_PTR) RAMBASEADDR;
     
 	unsigned int RAMTOP = (bus->rambase) + (bus->ramsize);
