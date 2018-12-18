@@ -49,8 +49,8 @@
 
 /* important status register bits */
 #define OFF 0x00000000
-/*#define IEc 0x00000001
-#define KUc 0x00000002
+#define IEc 0x00000001
+/*#define KUc 0x00000002
 #define IEp 0x00000004
 #define KUp 0x00000008
 #define IEo 0x00000010
