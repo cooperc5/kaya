@@ -44,7 +44,7 @@ cpu_t currentTOD;
 * of deadlock detection. Otherwise, jobs are scheduled using a 
 * simple round-robbin algorithm.
 */
-void invokeScheduler() {
+void scheduler() {
     /* are there any ready jobs? */
     if(emptyProcQ(readyQueue)) {
         /* we have no running process */
