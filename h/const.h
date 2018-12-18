@@ -106,7 +106,11 @@
 
 /* device interrupts */
 #define MAINDEVOFFSET 3
-
+#define DISKINT	3
+#define TAPEINT 4
+#define NETWINT 5
+#define PRNTINT 6
+#define TERMINT	7
 #define DEVINTNUM 5
 #define DEVPERINT 8
 
