@@ -106,7 +106,7 @@ HIDDEN void terminateProcess() {
     scheduler();
 }
 
-HIDDEN void death(pcb_PTR p) {
+HIDDEN void death(pcb_PTR p) { /* order candidate */
     while (!emptyChild(p)) {
             death(removeChild(p));
     }
@@ -117,7 +117,7 @@ HIDDEN void death(pcb_PTR p) {
     else if (p->p_semAdd == NULL) { /* p is on readyQ */
         outProcQ(&(readyQueue), p);
     }
-    else if (pp->p_semAdd != NULL) {
+    else if (p->p_semAdd != NULL) {
         int* sem = p->p_semAdd;
         outBlocked(p);
         /* is it blocked on a device semaphore? */
@@ -128,7 +128,7 @@ HIDDEN void death(pcb_PTR p) {
             (*sem)++;
         }
     }
-    freePcb(p)
+    freePcb(p);
     processCount--;
 }
 
