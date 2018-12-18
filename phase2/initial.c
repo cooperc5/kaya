@@ -32,7 +32,7 @@ pcb_PTR currentProcess;
 /* the queue of ready processes */
 pcb_PTR readyQueue;
 /* semaphore list */
-int devSemdTable[MAXSEMALLOC];
+int devSemdTable[MAXDEVSEM];
 
 /* 
 * Function: the boot squence for the OS; it will initalize process control blocks and 
