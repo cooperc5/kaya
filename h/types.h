@@ -103,7 +103,7 @@ typedef struct pcb_t {
 	/* the pcb_t child */
 	struct pcb_t* p_child;
 	/* the pcb_t next sibiling */
-	struct pcb_t* p_nextSib;
+	struct pcb_t* p_sib;
 	/* the pcb_t previous sibiling */
 	struct pcb_t* p_prevSib;
 	/* processor state */
