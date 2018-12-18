@@ -63,7 +63,7 @@
 /* use bitwise AND to turn off */
 #define VIRTUALMEMOFF 0xFDFFFFFF
 /**************************** ALL OFF *************************/
-#define OFF 0x00000000
+#define ALLZEROES 0x00000000
 /************************* INTERRUPTS *************************/
 #define LOCAL 0xFFFFF000
 

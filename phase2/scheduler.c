@@ -64,7 +64,7 @@ void scheduler() {
                 /* are we waiting for I/O? */
             } else if(softBlockedCount > 0) {
                 /* enable interrupts for the next job */
-                setSTATUS(getSTATUS() | OFF | INTERRUPTSON | IEc | IM);
+                setSTATUS(getSTATUS() | ALLZEROES | INTERRUPTSON | IEc | IM);
                 /* wait */
                 WAIT();
             }

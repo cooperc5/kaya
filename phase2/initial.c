@@ -3,7 +3,7 @@
     phase2, being the process count, the softblocked count, the current process (henceforth, jobs and processes will be 
     synonymous), and the ready queue - the queue of jobs who status is marked as ready. In main, there are a number of 
     boot opertions. First, the four new areas in low memory are populated to support context switching. The stack 
-    pointer will be set, the program counter will be reflected appropriately and the status of VM will be off, 
+    pointer will be set, the program counter will be reflected appropriately and the status of VM will be ALLZEROES, 
     interrupts will be masked, and kernel mode is on. Process control blocks are allocated and the ASL is set. 
 
 ***************************************************** initial.c ************************************************************/
@@ -62,14 +62,14 @@ int main() {
     and the t9 register is filled in each respective location */
     /******************************************** SYSCALL AREA ****************************************/
     state = (state_PTR) SYSCALLNEWAREA;
-    state->s_status = OFF;   
+    state->s_status = ALLZEROES;   
     state->s_sp = RAMTOP;
     state->s_pc = (memaddr) syscallHandler; 
     /* fill the t9 register */
     state->s_t9 = (memaddr) syscallHandler; 
     /******************************************** PRGMTRAP AREA ****************************************/
     state = (state_PTR) PRGMTRAPNEWAREA;
-    state->s_status = OFF;   
+    state->s_status = ALLZEROES;   
     state->s_sp = RAMTOP;
     state->s_pc = (memaddr) programTrapHandler; 
     /* fill the t9 register */
@@ -77,14 +77,14 @@ int main() {
     /******************************************** TBLMGMT AREA ****************************************/
     state = (state_PTR) TBLMGMTNEWAREA;
     /* privlaged ROM instruction */
-    state->s_status = OFF;   
+    state->s_status = ALLZEROES;   
     state->s_sp = RAMTOP;
     state->s_pc = (memaddr) translationLookasideBufferHandler; 
     /* fill the t9 register */
     state->s_t9 = (memaddr) translationLookasideBufferHandler;
     /******************************************** INTRUPT AREA ****************************************/
     state = (state_PTR) INTERRUPTNEWAREA;
-    state->s_status = OFF;   
+    state->s_status = ALLZEROES;   
     state->s_sp = RAMTOP;
     state->s_pc = (memaddr) interruptHandler; 
     /* fill the t9 register */
@@ -107,7 +107,7 @@ int main() {
     currentProcess->p_s.s_sp = (RAMTOP - PAGESIZE);
     currentProcess->p_s.s_pc = (memaddr) test; /* TODO IMPLEMENT TEST CODE */
     currentProcess->p_s.s_t9 = (memaddr) test; /* TODO IMPLEMENT TEST CODE */
-    currentProcess->p_s.s_status = (OFF | INTERRUPTSON | IM | TE);
+    currentProcess->p_s.s_status = (ALLZEROES | INTERRUPTSON | IM | TE);
     /* increment the process count, since we have one fired up */
     processCount++;
     /* insert the newly allocated process into the ready queue */

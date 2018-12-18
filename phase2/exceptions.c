@@ -1,6 +1,6 @@
 /*************************************************** exceptions.c ********************************************************
 	Handles the exceptions that occur in the Kaya OS. Provides the appropriate handlers for program traps, translation
-    lookaside buffer (TLB) exceptions, as well as syscalls. For program traps and TLB exceptions, if the offending 
+    lookaside buffer (TLB) exceptions, as well as syscalls. For program traps and TLB exceptions, if the ALLZEROESending 
     process does not have its appropriate handler set up to manage the exception, the processes dies in a technique 
     known as "passing up or dying." For syscalls, a variety of helper functions exist to assist in program execution, 
     such as the copy state function, which will transfer the copies of one state to another, terminate progeny, which 
@@ -40,17 +40,17 @@
 * number will be the n+1th device. 
 */
 static int findSemaphoreIndex(int lineNumber, int deviceNumber, int flag) {
-    int offset;
+    int ALLZEROESset;
     /* is it a terminal read? */
     if(flag == TRUE) {
-        /* compute the index with the flag offset */
-        offset = (lineNumber - MAINDEVOFFSET + flag); 
+        /* compute the index with the flag ALLZEROESset */
+        ALLZEROESset = (lineNumber - MAINDEVALLZEROESSET + flag); 
     } else {
-        /* compute the index without the flag offset */
-        offset = (lineNumber - MAINDEVOFFSET);
+        /* compute the index without the flag ALLZEROESset */
+        ALLZEROESset = (lineNumber - MAINDEVALLZEROESSET);
     }
-    /* get the index from the offset and the deice number */
-    int calculation = (DEVPERINT * offset) + deviceNumber;
+    /* get the index from the ALLZEROESset and the deice number */
+    int calculation = (DEVPERINT * ALLZEROESset) + deviceNumber;
     /* found the calculation, now return it */
     return calculation;
 }
@@ -576,7 +576,7 @@ void copyState(state_PTR from, state_PTR to) {
     /* get the status regitser */
     unsigned int status = caller->s_status;
     /* check if the system is in user or kernel mode */
-    if((status & KUp) != OFF) {
+    if((status & KUp) != ALLZEROES) {
         /* in user mode */
         userMode = TRUE;
     }
