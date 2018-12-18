@@ -9,52 +9,49 @@ pcb_PTR runningProcess;
 cpu_t startTOD;
 cpu_t currentTOD;
 
-void scheduler() {
-    /* are there any ready jobs? */
-    if(emptyProcQ(readyQueue)) {
-        /* we have no running process */
+void debugScheduler(int a) {
+    int i;
+    i=0;
+}
+
+extern void scheduler() {
+    debugScheduler(13);
+    if (emptyProcQ(readyQueue)) {
         currentProcess = NULL;
-        /* do we have any job to do? */
-        if(processCount == 0) {
-            /* nothing to do */
-            HALT();
+        if (processCount == 0) {
+                HALT();
         }
-        /* are we waiting on I/O? */
-        if(processCount > 0) {
-            /* do are we waiting for I/O? */
-            if(softBlockedCount == 0) {
-                /* not a job, not waiting for a job, 
-                and are not a job itself - kernel panic */ 
+        if (processCount > 0) {
+            if (softBlockedCount == 0) {
                 PANIC();
-                /* are we waiting for I/O? */
-            } else if(softBlockedCount > 0) {
-                /* enable interrupts for the next job */
+            }
+            if (softBlockedCount > 0) {
+                /* modify status */
                 setSTATUS(getSTATUS() | OFF | INTERRUPTSON | IEc | IM);
-                /* wait */
                 WAIT();
             }
         }
+    
+
     } else {
-        /* simply ready the next job using round-robbin */
+        /* use round robin for next job */
         if (currentProcess != NULL) {
             /* start the clock */
             STCK(currentTOD);
             currentProcess->p_time = currentProcess->p_time + (currentTOD - startTOD);
         }
-        /* generate an interrupt when timer is up */
+        /* set interrupt timer */
         if(currentTOD < QUANTUM) {
-            /* our current job will be less than 
-            our quantum, take the shorter */
             setTIMER(currentTOD);
         } else {
             /* set the quantum */
             setTIMER(QUANTUM);
         }
-        /* grab a job */
+        /* pop a job */
         currentProcess = removeProcQ(&(readyQueue));
         STCK(startTOD);
-        /* perform a context switch */
-        contextSwitch(&(currentProcess->p_s));
+        
+        LDST(&(currentProcess->p_s));
     }
 }
 
